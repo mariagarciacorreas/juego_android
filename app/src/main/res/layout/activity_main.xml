@@ -5,15 +5,75 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFEB3B"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+
+    <Button
+        android:id="@+id/btnPlay"
+        android:layout_width="259dp"
+        android:layout_height="61dp"
+        android:backgroundTint="#FDCA01"
+        android:fontFamily="monospace"
+        android:shadowColor="#646363"
+        android:text="Jugar demo"
+        android:textColor="#FD0000"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:cornerRadius="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.519"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.637"
+        app:strokeColor="#EB0000"
+        app:strokeWidth="4dp" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="410dp"
+        android:layout_height="159dp"
+        android:layout_marginTop="184dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/parlamon_logo_pixel2" />
+
+    <TextView
+        android:id="@+id/txtSlogan"
+        android:layout_width="308dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="132dp"
+        android:fontFamily="monospace"
+        android:text="por y para el pueblo"
+        android:textAlignment="center"
+        android:textColor="#FB0000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imgLogo" />
+
+    <TextView
+        android:id="@+id/txtCreadores"
+        android:layout_width="252dp"
+        android:layout_height="96dp"
+        android:layout_marginBottom="108dp"
+        android:fontFamily="monospace"
+        android:shadowColor="#FFFEFE"
+        android:shadowDx="8"
+        android:shadowDy="8"
+        android:shadowRadius="8"
+        android:text="Desarrollado por:\n\nSergio Alonso Pérez\nPedro Arriero Domec\nMaría C García Correas"
+        android:textAlignment="center"
+        android:textColor="#7A4E4E"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
