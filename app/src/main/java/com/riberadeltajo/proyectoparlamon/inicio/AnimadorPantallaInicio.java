@@ -1,12 +1,18 @@
-package com.riberadeltajo.proyectoparlamon;
+package com.riberadeltajo.proyectoparlamon.inicio;
 
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 
+import com.riberadeltajo.proyectoparlamon.R;
+
 public class AnimadorPantallaInicio {
+
+    public AnimadorPantallaInicio() {
+    }
 
     public void animarLogo(View logo){
         //aparece desde arriba con rebote suave
@@ -37,6 +43,12 @@ public class AnimadorPantallaInicio {
         AlphaAnimation fade = new AlphaAnimation(0f, 0f);
         fade.setDuration(1000);
         v.startAnimation(fade);
+    }
+
+    public void animarMarquesina(View v){
+        //cargar animación xml
+        Animation anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.creditos);
+        v.startAnimation(anim);
     }
 
 

@@ -1,4 +1,4 @@
-package com.riberadeltajo.proyectoparlamon;
+package com.riberadeltajo.proyectoparlamon.motor;
 
 
 import android.app.Activity;
@@ -6,21 +6,32 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.riberadeltajo.proyectoparlamon.escenas.EscenaInicio;
 
 public class Juego extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder holder;
     private BucleJuego bucle;
 
+    private GestorEscenas gestorEscenas;
+
 
     private static final String TAG = Juego.class.getSimpleName();
 
     public Juego(Activity context) {
         super(context);
+        //iniciar surfaceHolder
         holder = getHolder();
         holder.addCallback(this);
+
+        //crear gestor de escenas
+        gestorEscenas = new GestorEscenas();
+        //establecer la primera escena del juego
+        gestorEscenas.cambiarEscena(new EscenaInicio(context, gestorEscenas));
     }
 
     @Override
@@ -52,6 +63,7 @@ public class Juego extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void actualizar() {
 
+        gestorEscenas.actualizar();
 
     }
 
@@ -60,14 +72,21 @@ public class Juego extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void renderizar(Canvas canvas) {
 
-        canvas.drawColor(Color.BLACK);
 
+        //canvas.drawColor(Color.BLACK);
+
+        gestorEscenas.renderizar(canvas);
+
+        //DEBUG
         //pintar mensajes que nos ayudan
-        Paint p=new Paint();
-        p.setStyle(Paint.Style.FILL_AND_STROKE);
-        p.setColor(Color.RED);
-        p.setTextSize(50);
-        canvas.drawText("Frame "+bucle.iteraciones+";"+"Tiempo "+bucle.tiempoTotal + " ["+bucle.maxX+","+bucle.maxY+"]",50,150,p);
+//        Paint p=new Paint();
+//        p.setStyle(Paint.Style.FILL_AND_STROKE);
+//        p.setColor(Color.RED);
+//        p.setTextSize(50);
+//        canvas.drawText("Frame "+bucle.iteraciones+";"+"Tiempo "+bucle.tiempoTotal + " ["+bucle.maxX+","+bucle.maxY+"]",50,150,p);
+
+
+
     }
 
     @Override
@@ -85,5 +104,12 @@ public class Juego extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            gestorEscenas.onTouch(event.getX(), event.getY());
+        }
+        return true;
+    }
 
 }

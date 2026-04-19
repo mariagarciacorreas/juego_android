@@ -1,4 +1,4 @@
-package com.riberadeltajo.proyectoparlamon;
+package com.riberadeltajo.proyectoparlamon.motor;
 
 import android.graphics.Canvas;
 import android.util.Log;
