@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.dialogos.EscritorTexto;
+import com.riberadeltajo.proyectoparlamon.dialogos.GestorDialogos;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 import java.util.Arrays;
@@ -33,39 +34,8 @@ public class EscenaInicio implements Escena{
     private boolean mostrarCiberFrank = false;
     private boolean ocultandoCiberFrank = false;
 
-    private final List<List<String>> pantallasDialogos = Arrays.asList(
-
-        //Pantalla 1
-        Arrays.asList(
-            "En un reino no tan lejano",
-            "donde los memes gobiernan más que las leyes,",
-            "una sombra digital se extiende sobre la nación…",
-            "",
-            "La Gran Carta, símbolo de los derechos del",
-            "pueblo, ha sido robada por el temible…",
-            "CiberFrank, señor del ciberfascismo.",
-            "",
-            "Con la libertad en peligro,",
-            "solo un héroe puede restaurar el equilibrio.",
-            "Ese héroe… podrías ser tú."
-        ),
-
-        //Pantalla 2
-        Arrays.asList(
-            "Bienvenido a Ciudad Memópolis,",
-            "donde cada esquina es un debate",
-            "y cada vecino tiene una opinión.",
-            "",
-            "Antes de comenzar tu misión,",
-            "debes elegir a tu campeón.",
-            "Cada uno posee habilidades únicas…",
-            "y un ego considerable.",
-            "",
-            "Con la libertad en peligro,",
-            "solo un héroe puede restaurar el equilibrio.",
-            "Ese héroe… podrías ser tú."
-        )
-    );
+    private GestorDialogos gestorDialogos = new GestorDialogos();
+    private final List<List<String>> dialogosLore = gestorDialogos.getDialogosLore();
 
 
     private Paint paintTexto;
@@ -103,7 +73,7 @@ public class EscenaInicio implements Escena{
 
     private void cargarPantalla(int index){
         pantallaDialogoActual = index;
-        escritor.iniciarEscritura(pantallasDialogos.get(index));
+        escritor.iniciarEscritura(dialogosLore.get(index));
 
         //cargar Ciber Frank
         if (index == 0){
@@ -179,8 +149,8 @@ public class EscenaInicio implements Escena{
             Paint p = new Paint();
             p.setAlpha(alphaCiberFrank);
 
-            float x = canvas.getWidth() / 2f - imgCiberFrank.getWidth() / 2f;
-            float y = canvas.getHeight() / 2f - imgCiberFrank.getHeight() / 2f - alturaBloqueTexto / 2f;
+            float x = canvas.getWidth() - canvas.getWidth() / 2f + imgCiberFrank.getWidth() / 2f;
+            float y = canvas.getHeight() / 2f - imgCiberFrank.getHeight() / 2f ;
 
             canvas.drawBitmap(imgCiberFrank, x, y, p);
         }
@@ -188,12 +158,12 @@ public class EscenaInicio implements Escena{
         //dibujer texto del diálogo encima de la pista
         float y = textoY;
         for(String li : lineas){
-            canvas.drawText(li, 60, y, paintTexto);
+            canvas.drawText(li, 130, y, paintTexto);
             y += lineHeight;
         }
 
         //Pista para seguir con el flujo del juego
-        //dibujar pulsación
+        //dibujar latido
         if(escritor.isTerminado()){
 
             //posición: esquina inferior derecha
@@ -230,7 +200,7 @@ public class EscenaInicio implements Escena{
         }else{
             //cuando termina el texto, avanzar pantalla (si quedan) o ir a selección de personaje
             int siguiente = pantallaDialogoActual + 1;
-            if(siguiente < pantallasDialogos.size()){
+            if(siguiente < dialogosLore.size()){
                 cargarPantalla(siguiente);
             }else{
                 //termina la escritura y pasa a la siguiente escena

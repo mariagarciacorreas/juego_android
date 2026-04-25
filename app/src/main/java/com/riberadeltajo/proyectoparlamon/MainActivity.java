@@ -1,5 +1,6 @@
 package com.riberadeltajo.proyectoparlamon;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -41,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         //acción del botón
         boton.setOnClickListener(v -> {
-            setContentView(new Juego(this));
+            Intent i = new Intent(MainActivity.this, ActividadJuego.class);
+            startActivity(i);
+            //setContentView(new Juego(this));
         });
 
     }
