@@ -50,14 +50,14 @@ public class EscenaInicio implements Escena{
         paintTexto.setColor(Color.WHITE);
         paintTexto.setTextSize(35);
         paintTexto.setTypeface(Typeface.MONOSPACE);
-        paintTexto.setAntiAlias(true);
+        paintTexto.setAntiAlias(false);
 
         //pintar pista
         paintPista = new Paint();
         paintPista.setColor(Color.GRAY);
         paintPista.setTextSize(35);
         paintPista.setTypeface(Typeface.MONOSPACE);
-        paintPista.setAntiAlias(true);
+        paintPista.setAntiAlias(false);
 
         //cargar imagen Ciber Frank y escalar
         Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.ciberfrank_intro);
@@ -204,7 +204,7 @@ public class EscenaInicio implements Escena{
                 cargarPantalla(siguiente);
             }else{
                 //termina la escritura y pasa a la siguiente escena
-                //gestorEscena.cambiarEscena(new EscenaDialogo(context, gestorEscena));
+                gestorEscenas.cambiarEscena(new EscenaSeleccionPersonaje(context, gestorEscenas));
             }
         }
     }
