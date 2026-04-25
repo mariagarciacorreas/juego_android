@@ -1,12 +1,15 @@
 package com.riberadeltajo.proyectoparlamon.escenas;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
+import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 public class EscenaSeleccionPersonaje implements Escena{
@@ -24,6 +27,11 @@ public class EscenaSeleccionPersonaje implements Escena{
     private float escalaPista = 1f;
     private float tiempoPulsacion = 0f;
 
+    private Bitmap imgGuerrero;
+    private Bitmap imgMago;
+    private Bitmap imgElfo;
+
+
 
     public EscenaSeleccionPersonaje(Context context, GestorEscenas gestorEscenas) {
         this.context = context;
@@ -39,15 +47,21 @@ public class EscenaSeleccionPersonaje implements Escena{
 
         //pista
         paintPista = new Paint();
-        paintPista.setColor(Color.GRAY);
+        paintPista.setColor(Color.rgb(255, 235, 59)); // FFEB3B
         paintPista.setTextSize(35);
         paintPista.setTypeface(Typeface.MONOSPACE);
         paintPista.setAntiAlias(false);
 
         //pastilla
         paintPastilla = new Paint();
-        paintPastilla.setColor(Color.rgb(255, 235, 59)); // FFEB3B
+        //paintPastilla.setColor(Color.rgb(255, 235, 59)); // FFEB3B
+        paintPastilla.setColor(Color.DKGRAY);
         paintPastilla.setStyle(Paint.Style.FILL);
+
+        //cargar imagenes de los personajes
+        imgGuerrero = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_gerrero);
+        imgMago = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_mago);
+        imgElfo = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_elfo);
 
     }
 
@@ -67,11 +81,11 @@ public class EscenaSeleccionPersonaje implements Escena{
         float w = canvas.getWidth();
         float h = canvas.getHeight();
 
-        float margenLateral = 120;
-        float separacion = 40;
+        float margenLateral = 150;
+        float separacion = 80;
 
         float anchoPastilla = (w - margenLateral*2 - separacion*2) / 3f;
-        float altoPastilla = h * 0.75f;
+        float altoPastilla = h * 0.8f;
 
         float espacioArriba = h/2f - altoPastilla/2f;
         float espacioAbajo = h/2f + altoPastilla/2f;
@@ -81,15 +95,62 @@ public class EscenaSeleccionPersonaje implements Escena{
         pastillaFeijoo = new RectF(pastillaPedro.right + separacion, espacioArriba, pastillaPedro.right + separacion + anchoPastilla, espacioAbajo);
         pastillaAbascal = new RectF(pastillaFeijoo.right + separacion, espacioArriba, pastillaFeijoo.right + separacion + anchoPastilla, espacioAbajo);
 
-        //dibujar pastillas
+        //DIBUJAR PASTILLAS
         canvas.drawRoundRect(pastillaPedro, 30, 30, paintPastilla);
         canvas.drawRoundRect(pastillaFeijoo, 30, 30, paintPastilla);
         canvas.drawRoundRect(pastillaAbascal, 30, 30, paintPastilla);
 
+
+        //ancho máximo permitido (65% de la pastilla)
+        //float anchoImg = anchoPastilla * 0.65f;
+        float anchoImg = anchoPastilla * 0.70f;
+
+        //GUERRERO
+        if (imgGuerrero != null) {
+            float ratio = (float) imgGuerrero.getHeight() / imgGuerrero.getWidth();
+            float altoImg = anchoImg * ratio;
+
+            Bitmap scaled = Bitmap.createScaledBitmap(imgGuerrero, (int)anchoImg, (int)altoImg, false);
+
+            float x = pastillaPedro.centerX() - scaled.getWidth() / 2f;
+            float y = pastillaPedro.centerY() - scaled.getHeight() / 2f;
+
+            canvas.drawBitmap(scaled, x, y, null);
+        }
+
+        //MAGO
+        if (imgMago != null) {
+            float ratio = (float) imgMago.getHeight() / imgMago.getWidth();
+            float altoImg = anchoImg * ratio;
+
+            Bitmap scaled = Bitmap.createScaledBitmap(imgMago, (int)anchoImg, (int)altoImg, false);
+
+            float x = pastillaFeijoo.centerX() - scaled.getWidth() / 2f;
+            float y = pastillaFeijoo.centerY() - scaled.getHeight() / 2f;
+
+            canvas.drawBitmap(scaled, x, y, null);
+        }
+
+        //ELFO
+        if (imgElfo != null) {
+            float ratio = (float) imgElfo.getHeight() / imgElfo.getWidth();
+            float altoImg = anchoImg * ratio;
+
+            Bitmap scaled = Bitmap.createScaledBitmap(imgElfo, (int)anchoImg, (int)altoImg, false);
+
+            float x = pastillaAbascal.centerX() - scaled.getWidth() / 2f;
+            float y = pastillaAbascal.centerY() - scaled.getHeight() / 2f;
+
+            canvas.drawBitmap(scaled, x, y, null);
+        }
+
+
+
+
         //texto
-        canvas.drawText("Pedro Sánchez", pastillaPedro.left + 20, pastillaPedro.top + 80, paintTexto);
-        canvas.drawText("Feijóo", pastillaFeijoo.left + 20, pastillaFeijoo.top + 80, paintTexto);
-        canvas.drawText("Abascal", pastillaAbascal.left + 20, pastillaAbascal.top + 80, paintTexto);
+//        canvas.drawText("Pedro Sánchez", pastillaPedro.left + 20, pastillaPedro.top + 80, paintTexto);
+//        canvas.drawText("Feijóo", pastillaFeijoo.left + 20, pastillaFeijoo.top + 80, paintTexto);
+//        canvas.drawText("Abascal", pastillaAbascal.left + 20, pastillaAbascal.top + 80, paintTexto);
 
         //margen inferior
         float margen = 60;

@@ -1,11 +1,14 @@
 package com.riberadeltajo.proyectoparlamon.escenas;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 public class EscenaSeleccionPersonajeDetalle implements Escena{
@@ -24,6 +27,9 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
     float w;
     float h;
 
+    private Bitmap sprite;
+    private Bitmap spriteBase;
+
     public EscenaSeleccionPersonajeDetalle(Context context, GestorEscenas gestorEscenas, String nombre, String clase) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
@@ -40,13 +46,24 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         paintTextoBtn = new Paint();
         paintTextoBtn.setColor(Color.DKGRAY);
         paintTextoBtn.setTextSize(50);
-        paintTexto.setTypeface(Typeface.MONOSPACE);
-        paintTexto.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        paintTexto.setAntiAlias(false);
+        paintTextoBtn.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        paintTextoBtn.setAntiAlias(false);
 
         paintBoton = new Paint();
         paintBoton.setColor(Color.WHITE);
         paintBoton.setStyle(Paint.Style.FILL);
+
+        cargarSpriteBase();
+    }
+
+    private void cargarSpriteBase(){
+        if (clase.equalsIgnoreCase("Guerrero")) {
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_gerrero);
+        } else if (clase.equalsIgnoreCase("Mago")) {
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_mago);
+        } else if (clase.equalsIgnoreCase("Elfo")) {
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_elfo);
+        }
     }
 
     @Override
@@ -62,12 +79,25 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         w = canvas.getWidth();
         h = canvas.getHeight();
 
+        //escalar sprite del personaje al 40% del tamaño de la pantalla
+        if (sprite == null && spriteBase != null) {
+            int nuevoAncho = (int)(w * 0.4f); // 40% del ancho de pantalla
+            float ratio = (float)spriteBase.getHeight() / spriteBase.getWidth();
+            int nuevoAlto = (int)(nuevoAncho * ratio);
+
+            sprite = Bitmap.createScaledBitmap(spriteBase, nuevoAncho, nuevoAlto, false);
+        }
+
         //nombre y clase
         canvas.drawText(nombre, w/2f - 150, 150, paintTexto);
         canvas.drawText("Clase: " + clase, w/2f - 150, 230, paintTexto);
 
-        //sprite del personaje
-        canvas.drawText("[SPRITE AQUÍ]", w/2f - 150, h/2f, paintTexto);
+        //sprite del personaje centrado
+        if (sprite != null) {
+            float spriteX = w/2f - sprite.getWidth()/2f;
+            float spriteY = h/2f - sprite.getHeight()/2f;
+            canvas.drawBitmap(sprite, spriteX, spriteY, null);
+        }
 
         //botón comenzar
         float bw = 400;
