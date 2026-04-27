@@ -59,7 +59,7 @@ public class EscenaSeleccionPersonaje implements Escena{
         paintPastilla.setStyle(Paint.Style.FILL);
 
         //cargar imagenes de los personajes
-        imgGuerrero = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_gerrero);
+        imgGuerrero = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_guerrero);
         imgMago = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_mago);
         imgElfo = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_elfo);
 
