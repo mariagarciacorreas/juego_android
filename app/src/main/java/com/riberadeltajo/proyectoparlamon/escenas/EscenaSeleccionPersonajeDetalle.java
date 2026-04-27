@@ -118,9 +118,10 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         float bx = w/2f - bw/2f;
         float by = h - 200;
 
-        if (bx >= bx && x <= bx + bw && y >= by && y <= by + bh) {
-            //TODO
-            //gestorEscenas.cambiarEscena(new EscenaMapa(context, gestorEscenas));
+        if (x >= bx && x <= bx + bw && y >= by && y <= by + bh) {
+            gestorEscenas.cambiarEscena(
+                    new EscenaDialogoCombate(context, gestorEscenas, nombre, clase)
+            );
         }
     }
 }
