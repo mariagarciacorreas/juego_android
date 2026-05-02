@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 
 import com.riberadeltajo.proyectoparlamon.R;
+import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 public class EscenaSeleccionPersonajeDetalle implements Escena{
@@ -22,6 +23,11 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
     private Paint paintTexto;
     private Paint paintBoton;
     private Paint paintTextoBtn;
+
+    //animación del botón (efecto latido)
+    private float escalaBoton = 1f;
+    private float velocidadLatido = 0.005f;
+    private boolean creciendo = true;
 
     //tamaño de pantalla
     float w;
@@ -58,17 +64,29 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
 
     private void cargarSpriteBase(){
         if (clase.equalsIgnoreCase("Guerrero")) {
-            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_gerrero);
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.guerrero);
         } else if (clase.equalsIgnoreCase("Mago")) {
-            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_mago);
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.mago);
         } else if (clase.equalsIgnoreCase("Elfo")) {
-            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.seleccion_personaje_elfo);
+            spriteBase = BitmapFactory.decodeResource(context.getResources(), R.drawable.elfo);
         }
     }
 
     @Override
     public void actualizar() {
 
+        //animación tipo latido para el botón (1.00 → 1.08 → 1.00)
+        if (creciendo) {
+            escalaBoton += velocidadLatido;
+            if (escalaBoton >= 1.08f) {
+                creciendo = false;
+            }
+        } else {
+            escalaBoton -= velocidadLatido;
+            if (escalaBoton <= 1f) {
+                creciendo = true;
+            }
+        }
     }
 
     @Override
@@ -81,7 +99,7 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
 
         //escalar sprite del personaje al 40% del tamaño de la pantalla
         if (sprite == null && spriteBase != null) {
-            int nuevoAncho = (int)(w * 0.4f); // 40% del ancho de pantalla
+            int nuevoAncho = (int)(w * 0.2f); // 40% del ancho de pantalla
             float ratio = (float)spriteBase.getHeight() / spriteBase.getWidth();
             int nuevoAlto = (int)(nuevoAncho * ratio);
 
@@ -102,11 +120,26 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         //botón comenzar
         float bw = 400;
         float bh = 120;
+
         float bx = w/2f - bw/2f;
         float by = h - 200;
-
+        //centro del botón (punto de escala)
+        float cx = bx + bw/2f;
+        float cy = by + bh/2f;
+        //guardar estado del canvas
+        canvas.save();
+        //aplicar escala al latido
+        canvas.scale(escalaBoton, escalaBoton, cx, cy);
+        //dibujar rectángulo botón escalado
         canvas.drawRect(bx, by, bx + bw, by + bh, paintBoton);
-        canvas.drawText("Comenzar", bx + 80, by + 75, paintTextoBtn);
+        //centrar texto dentro del botón automáticamente
+        String texto = "Comenzar";
+        float textoAncho = paintTextoBtn.measureText(texto);
+        float textoX = cx - textoAncho / 2f;
+        float textoY = cy + 20;
+        canvas.drawText(texto, textoX, textoY, paintTextoBtn);
+        //restaurar canvas
+        canvas.restore();
 
     }
 
@@ -119,8 +152,9 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         float by = h - 200;
 
         if (x >= bx && x <= bx + bw && y >= by && y <= by + bh) {
+            Jugador jugador = new Jugador(nombre, clase);
             gestorEscenas.cambiarEscena(
-                    new EscenaDialogoCombate(context, gestorEscenas, nombre, clase)
+                    new EscenaMapa(context, gestorEscenas, jugador)
             );
         }
     }

@@ -29,10 +29,10 @@ public class BucleJuego extends Thread {
         surfaceHolder=sh;
 
         //Obtener Dimensiones del Canvas
-        Canvas c=sh.lockCanvas();
-        maxX = c.getWidth();
-        maxY = c.getHeight();
-        sh.unlockCanvasAndPost(c);
+//        Canvas c=sh.lockCanvas();
+//        maxX = c.getWidth();
+//        maxY = c.getHeight();
+//        sh.unlockCanvasAndPost(c);
     }
 
     @Override
@@ -54,6 +54,8 @@ public class BucleJuego extends Thread {
             try {
                 canvas = this.surfaceHolder.lockCanvas();
                 synchronized (surfaceHolder) {
+
+                    if (canvas == null) continue;
 
                     tiempoComienzo = System.currentTimeMillis();
                     framesASaltar = 0;	// resetear los frames saltados

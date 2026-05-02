@@ -1,6 +1,7 @@
 package com.riberadeltajo.proyectoparlamon.motor;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 
 import com.riberadeltajo.proyectoparlamon.escenas.Escena;
 
@@ -31,6 +32,10 @@ public class GestorEscenas {
         if(escenaActual != null){
             escenaActual.onTouch(x, y);
         }
+    }
+
+    public void onTouchEvent(MotionEvent event) {
+        if (escenaActual != null) escenaActual.onTouchEvent(event);
     }
 
 }

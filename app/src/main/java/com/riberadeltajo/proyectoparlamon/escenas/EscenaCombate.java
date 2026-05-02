@@ -151,7 +151,7 @@ public class EscenaCombate implements Escena {
         int spriteJugador;
         switch (jugador.getClase().toLowerCase()) {
             case "guerrero":
-                spriteJugador = R.drawable.sprite_gerrero_ejemplo;
+                spriteJugador = R.drawable.sprite_guerrero_ejemplo;
                 break;
             case "mago":
                 spriteJugador = R.drawable.sprite_mago_ejemplo;

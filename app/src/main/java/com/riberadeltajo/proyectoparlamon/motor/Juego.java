@@ -106,6 +106,11 @@ public class Juego extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
+
+        //gesión multitouch para EscenaMapa
+        gestorEscenas.onTouchEvent(event);
+
+        //gestión de toque simple para escenas
         if(event.getAction() == MotionEvent.ACTION_DOWN){
             gestorEscenas.onTouch(event.getX(), event.getY());
         }

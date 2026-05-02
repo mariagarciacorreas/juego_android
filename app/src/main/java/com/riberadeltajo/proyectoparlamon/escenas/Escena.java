@@ -1,6 +1,7 @@
 package com.riberadeltajo.proyectoparlamon.escenas;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 
 public interface Escena {
 
@@ -12,4 +13,7 @@ public interface Escena {
 
     //manejar toques en pantalla
     void onTouch(float x, float y);
+
+    //manejar multitouch
+    default void onTouchEvent(MotionEvent event){};
 }
