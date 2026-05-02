@@ -16,6 +16,7 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 import com.riberadeltajo.proyectoparlamon.hud.GestorHUD;
 import com.riberadeltajo.proyectoparlamon.mapa.Camara;
 import com.riberadeltajo.proyectoparlamon.mapa.GestorControles;
+import com.riberadeltajo.proyectoparlamon.mapa.MapaColisiones;
 import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
@@ -73,6 +74,10 @@ public class EscenaMapa implements Escena{
     private final Paint paintOverlayTexto;
     private final Paint paintBotonEntrar;
     private final Paint paintBotonTexto;
+
+    //mapa colisiones (mapa transitable)
+    private MapaColisiones mapaColisiones;
+
 
 
     //constructor
@@ -137,7 +142,7 @@ public class EscenaMapa implements Escena{
 
         //mover al personaje en el mundo (coordenadas mundo)
         personaje.actualizar(gestorControles.getDx(), gestorControles.getDy(),
-                            mapaEscalado.getWidth(), mapaEscalado.getHeight());
+                            mapaEscalado.getWidth(), mapaEscalado.getHeight(), mapaColisiones);
 
         //actualizar cámara con la posición del personaje
         camara.actualizar(personaje.getMundoX(), personaje.getMundoY());
@@ -255,6 +260,8 @@ public class EscenaMapa implements Escena{
         // Cargar y escalar el mapa
         Bitmap mapaOriginal = BitmapFactory.decodeResource(context.getResources(), R.drawable.memopolis);
 
+        mapaColisiones = new MapaColisiones(context, ZOOM_FACTOR);
+
         int anchoEscalado = Math.round(mapaOriginal.getWidth()  * ZOOM_FACTOR);
         int altoEscalado  = Math.round(mapaOriginal.getHeight() * ZOOM_FACTOR);
         mapaEscalado = Bitmap.createScaledBitmap(mapaOriginal, anchoEscalado, altoEscalado, true);
@@ -263,9 +270,9 @@ public class EscenaMapa implements Escena{
         // Cámara — conoce las dimensiones de pantalla y del mundo
         camara = new Camara(anchoPantalla, altoPantalla, mapaEscalado.getWidth(), mapaEscalado.getHeight());
 
-        // Personaje — arranca en el centro del mapa (ajustar a posición inicial deseada)
-        float inicioX = mapaEscalado.getWidth() * 0.35f;
-        float inicioY = mapaEscalado.getHeight() * 0.55f;
+        // Posición inicial del personaje
+        float inicioX = 1883;
+        float inicioY = 5272;
         personaje = new PersonajeMapa(context, jugador, inicioX, inicioY);
 
         //centra la camara sobre el personaje

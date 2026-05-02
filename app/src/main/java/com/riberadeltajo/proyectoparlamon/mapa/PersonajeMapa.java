@@ -62,12 +62,24 @@ public class PersonajeMapa {
     }
 
     //actualizar la posición en coordenadas del mundo
-    public void actualizar(float dx, float dy, float anchoMundo, float altoMundo) {
-        mundoX += dx * velocidadMax;
-        mundoY += dy * velocidadMax;
+    public void actualizar(float dx, float dy, float anchoMundo, float altoMundo, MapaColisiones colisiones) {
 
-        mundoX = Math.max(0, Math.min(anchoMundo - sprite.getWidth(), mundoX));
-        mundoY = Math.max(0, Math.min(altoMundo - sprite.getHeight(), mundoY));
+        float nuevaX = mundoX + dx * velocidadMax;
+        float nuevaY = mundoY + dy * velocidadMax;
+//        mundoX += dx * velocidadMax;
+//        mundoY += dy * velocidadMax;
+
+        //limitar los bordes del mundo
+        nuevaX = Math.max(0, Math.min(anchoMundo - sprite.getWidth(),  nuevaX));
+        nuevaY = Math.max(0, Math.min(altoMundo  - sprite.getHeight(), nuevaY));
+
+        //comrpobar colisones
+        if (colisiones.rectTransitable(nuevaX, mundoY, sprite.getWidth(), sprite.getHeight())) {
+            mundoX = nuevaX;
+        }
+        if (colisiones.rectTransitable(mundoX, nuevaY, sprite.getWidth(), sprite.getHeight())) {
+            mundoY = nuevaY;
+        }
     }
 
     //dibujar el personaje
