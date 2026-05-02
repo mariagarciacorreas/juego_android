@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -19,6 +20,9 @@ import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 public class EscenaMapa implements Escena{
+
+    private static final boolean DEBUG_ZONAS = true; // cambiar a false para release
+
 
     //dependencias
     private Context context;
@@ -54,10 +58,21 @@ public class EscenaMapa implements Escena{
     private final Paint paintZonaRelleno;
     private final Paint paintZonaBorde;
 
+    //zona congreso - batalla con final boss - esquina superior derecha del mapa
+    private static final float CONGRESO_MUNDO_X = 7550f;
+    private static final float CONGRESO_MUNDO_Y = 1440f;
+    private static final float RADIO_CONGRESO   = 150f;
 
+    // Estado del overlay del congreso
+    private boolean mostrarOverlayCongreso = false;
 
-    //private String nombre;
-    //private String clase;
+    //cartel advertencia y overlay
+    private final Paint paintCartel;
+    private final Paint paintCartelTexto;
+    private final Paint paintOverlay;
+    private final Paint paintOverlayTexto;
+    private final Paint paintBotonEntrar;
+    private final Paint paintBotonTexto;
 
 
     //constructor
@@ -80,6 +95,36 @@ public class EscenaMapa implements Escena{
         paintZonaBorde.setColor(Color.rgb(255, 60, 60));
         paintZonaBorde.setStyle(Paint.Style.STROKE);
         paintZonaBorde.setStrokeWidth(2f);
+
+        //zona congreso
+        paintCartel = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintCartel.setColor(Color.rgb(180, 30, 30));
+        paintCartel.setStyle(Paint.Style.FILL);
+
+        paintCartelTexto = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintCartelTexto.setColor(Color.WHITE);
+        paintCartelTexto.setTextSize(28f);
+        paintCartelTexto.setTypeface(Typeface.MONOSPACE);
+        paintCartelTexto.setTextAlign(Paint.Align.CENTER);
+
+        paintOverlay = new Paint();
+        paintOverlay.setColor(Color.argb(200, 0, 0, 0));
+
+        paintOverlayTexto = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintOverlayTexto.setColor(Color.rgb(255, 235, 59));
+        paintOverlayTexto.setTextSize(48f);
+        paintOverlayTexto.setTypeface(Typeface.MONOSPACE);
+        paintOverlayTexto.setTextAlign(Paint.Align.CENTER);
+
+        paintBotonEntrar = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintBotonEntrar.setColor(Color.rgb(180, 30, 30));
+        paintBotonEntrar.setStyle(Paint.Style.FILL);
+
+        paintBotonTexto = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintBotonTexto.setColor(Color.WHITE);
+        paintBotonTexto.setTextSize(42f);
+        paintBotonTexto.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        paintBotonTexto.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -109,17 +154,43 @@ public class EscenaMapa implements Escena{
         //mapa desplazado
         canvas.drawBitmap(mapaEscalado, -camara.getCamX(), -camara.getCamY(), paintMapa);
 
+
         //zona de encuentro
-        float zonaX = camara.mundoAPantallaX(ZONA_MUNDO_X);
-        float zonaY = camara.mundoAPantallaY(ZONA_MUNDO_Y);
-        canvas.drawCircle(zonaX, zonaY, RADIO_ZONA, paintZonaRelleno);
-        canvas.drawCircle(zonaX, zonaY, RADIO_ZONA, paintZonaBorde);
+        if (DEBUG_ZONAS) {
+            float congresoX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
+            float congresoY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
+            canvas.drawCircle(congresoX, congresoY, RADIO_CONGRESO, paintZonaRelleno);
+            canvas.drawCircle(congresoX, congresoY, RADIO_CONGRESO, paintZonaBorde);
+        }
+
+        // Cartel de advertencia en el congreso (coordenadas pantalla)
+        float cartelX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
+        float cartelY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
+
+        // Solo dibujarlo si está en pantalla
+        if (cartelX > -200 && cartelX < anchoPantalla + 200
+                && cartelY > -100 && cartelY < altoPantalla + 100) {
+            dibujarCartel(canvas, cartelX, cartelY);
+        }
 
         //personaje
         personaje.dibujar(canvas, paintSrpite, camara);
 
+        // DEBUG — coordenadas del personaje en el mundo
+        Paint paintDebug = new Paint();
+        paintDebug.setColor(Color.rgb(0, 255, 0));
+        paintDebug.setTextSize(28f);
+        paintDebug.setTypeface(Typeface.MONOSPACE);
+        paintDebug.setAntiAlias(false);
+        canvas.drawText( "X: " + (int)personaje.getMundoX() + "  Y: " + (int)personaje.getMundoY(), 50, 100, paintDebug);
+
         //texto
         canvas.drawText("⚠ Encuentra a Ciber Franco", 20, 50, paintHudTexto);
+
+        // Overlay congreso
+        if (mostrarOverlayCongreso) {
+            dibujarOverlayCongreso(canvas);
+        }
 
         //controles táctiles - coordenadas de pantalla fijas
         if(!gestorHUD.isPausado()){
@@ -145,7 +216,26 @@ public class EscenaMapa implements Escena{
         int accion = event.getActionMasked();
         if (accion == MotionEvent.ACTION_DOWN || accion == MotionEvent.ACTION_POINTER_DOWN) {
             int idx = event.getActionIndex();
-            if (gestorHUD.onTouch(event.getX(idx), event.getY(idx))) return;
+            float tx = event.getX(idx);
+            float ty = event.getY(idx);
+
+            // Si el overlay del congreso está visible, solo procesamos su botón
+            if (mostrarOverlayCongreso) {
+                float bw = 300f, bh = 90f;
+                float bx = anchoPantalla / 2f - bw / 2f;
+                float by = altoPantalla / 2f + 120f;
+                if (tx >= bx && tx <= bx + bw && ty >= by && ty <= by + bh) {
+                    mostrarOverlayCongreso = false;
+                    gestorControles.resetearControles();
+                    gestorEscenas.cambiarEscena(
+                            new EscenaDialogoCombate(context, gestorEscenas,
+                                    jugador.getNombre(), jugador.getClase())
+                    );
+                }
+                return; //bloquear cualquier otro toque mientras el overlay está abierto
+            }
+
+            if (gestorHUD.onTouch(tx, ty)) return;
         }
 
         if (!gestorHUD.isPausado()) {
@@ -189,6 +279,7 @@ public class EscenaMapa implements Escena{
     }
 
     private void comprobarZonaEncuentro(){
+        //zona Ciber Franco
         float dx = personaje.getMundoX() - ZONA_MUNDO_X;
         float dy = personaje.getMundoY() - ZONA_MUNDO_Y;
         if (Math.sqrt(dx * dx + dy * dy) < RADIO_ZONA) {
@@ -198,6 +289,63 @@ public class EscenaMapa implements Escena{
                             jugador.getNombre(), jugador.getClase())
             );
         }
+
+        //zona congreso
+        if (!mostrarOverlayCongreso) {
+            float dcx = personaje.getMundoX() - CONGRESO_MUNDO_X;
+            float dcy = personaje.getMundoY() - CONGRESO_MUNDO_Y;
+            if (Math.sqrt(dcx * dcx + dcy * dcy) < RADIO_CONGRESO) {
+                mostrarOverlayCongreso = true;
+                gestorControles.resetearControles();
+            }
+        }
+    }
+
+    private void dibujarCartel(Canvas canvas, float px, float py) {
+        float w = 160f;
+        float h = 80f;
+        float bx = px - w / 2f, by = py - h;
+
+        // Fondo rojo del cartel
+        RectF rect = new RectF(bx, by, bx + w, by + h);
+        canvas.drawRoundRect(rect, 8, 8, paintCartel);
+
+        // Borde amarillo
+        Paint borde = new Paint(Paint.ANTI_ALIAS_FLAG);
+        borde.setColor(Color.rgb(255, 235, 59));
+        borde.setStyle(Paint.Style.STROKE);
+        borde.setStrokeWidth(3f);
+        canvas.drawRoundRect(rect, 8, 8, borde);
+
+        // Texto
+        canvas.drawText("⚠ PELIGRO", px, by + 30, paintCartelTexto);
+        canvas.drawText("DICTADOR", px, by + 58, paintCartelTexto);
+    }
+
+    private void dibujarOverlayCongreso(Canvas canvas) {
+        float w = anchoPantalla, h = altoPantalla;
+
+        // Fondo oscuro
+        canvas.drawRect(0, 0, w, h, paintOverlay);
+
+        // Título
+        canvas.drawText("⚠ ZONA PELIGROSA", w / 2f, h / 2f - 120, paintOverlayTexto);
+        canvas.drawText("El Congreso", w / 2f, h / 2f - 60, paintOverlayTexto);
+
+        paintOverlayTexto.setTextSize(32f);
+        paintOverlayTexto.setColor(Color.WHITE);
+        canvas.drawText("Ciber Franco te espera dentro.", w / 2f, h / 2f, paintOverlayTexto);
+        canvas.drawText("No habrá vuelta atrás.", w / 2f, h / 2f + 45, paintOverlayTexto);
+        // restaurar
+        paintOverlayTexto.setTextSize(48f);
+        paintOverlayTexto.setColor(Color.rgb(255, 235, 59));
+
+        // Botón entrar
+        float bw = 300f, bh = 90f;
+        float bx = w / 2f - bw / 2f, by = h / 2f + 120f;
+        RectF boton = new RectF(bx, by, bx + bw, by + bh);
+        canvas.drawRoundRect(boton, 16, 16, paintBotonEntrar);
+        canvas.drawText("ENTRAR", w / 2f, by + 60, paintBotonTexto);
     }
 }
 

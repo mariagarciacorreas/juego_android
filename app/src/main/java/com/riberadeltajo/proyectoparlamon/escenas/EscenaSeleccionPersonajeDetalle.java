@@ -152,6 +152,7 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
         float by = h - 200;
 
         if (x >= bx && x <= bx + bw && y >= by && y <= by + bh) {
+            android.util.Log.d("SELECCION", "Clase seleccionada: '" + clase + "'");
             Jugador jugador = new Jugador(nombre, clase);
             gestorEscenas.cambiarEscena(
                     new EscenaMapa(context, gestorEscenas, jugador)

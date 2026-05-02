@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.combate.Jugador;
@@ -29,14 +30,18 @@ public class PersonajeMapa {
         android.util.Log.d("PERSONAJE", "Clase recibida: '" + jugador.getClase() + "'");
 
         switch (jugador.getClase().toLowerCase()){
-            case "gerrero":
+            case "guerrero":
                 recurso = R.drawable.sprite_guerrero_ejemplo;
                 break;
             case "mago":
                 recurso = R.drawable.sprite_mago_ejemplo;
                 break;
-            default:
+            case "elfo":
                 recurso = R.drawable.sprite_elfo_ejemplo;
+                break;
+            default:
+                Log.e("PERSONAJE", "Clase desconocida: " + jugador.getClase());
+                recurso = R.drawable.sprite_guerrero_ejemplo;
                 break;
         }
 
@@ -44,7 +49,7 @@ public class PersonajeMapa {
 
         // Protección por si el drawable no existe
         if (original == null) {
-            android.util.Log.e("PERSONAJE", "Bitmap null para recurso: " + recurso);
+            Log.e("PERSONAJE", "Bitmap null para recurso: " + recurso);
             original = BitmapFactory.decodeResource(contexto.getResources(),
                     R.drawable.sprite_elfo_ejemplo); // fallback seguro
         }
