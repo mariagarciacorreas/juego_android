@@ -84,8 +84,8 @@ public class EscenaMapa implements Escena{
     private MapaColisiones mapaColisiones;
 
     //sonido
-    private MediaPlayer mpCongreso;
-    private MediaPlayer mpBase;
+    private final MediaPlayer mpCongreso;
+    private final MediaPlayer mpBase;
 
 
     //constructor
