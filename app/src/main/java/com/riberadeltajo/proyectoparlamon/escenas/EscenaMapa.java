@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.riberadeltajo.proyectoparlamon.R;
@@ -19,6 +21,7 @@ import com.riberadeltajo.proyectoparlamon.mapa.GestorControles;
 import com.riberadeltajo.proyectoparlamon.mapa.MapaColisiones;
 import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
+import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
 public class EscenaMapa implements Escena{
 
@@ -73,11 +76,16 @@ public class EscenaMapa implements Escena{
     private final Paint paintOverlay;
     private final Paint paintOverlayTexto;
     private final Paint paintBotonEntrar;
+    private RectF botonEntrarRect;
+
     private final Paint paintBotonTexto;
 
     //mapa colisiones (mapa transitable)
     private MapaColisiones mapaColisiones;
 
+    //sonido
+    private MediaPlayer mpCongreso;
+    private MediaPlayer mpBase;
 
 
     //constructor
@@ -85,6 +93,8 @@ public class EscenaMapa implements Escena{
         this.context = context;
         this.gestorEscenas = gestorEscenas;
         this.jugador = jugador;
+
+        SonidoManager.stop();
 
         paintHudTexto = new Paint();
         paintHudTexto.setColor(Color.WHITE);
@@ -130,6 +140,12 @@ public class EscenaMapa implements Escena{
         paintBotonTexto.setTextSize(42f);
         paintBotonTexto.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
         paintBotonTexto.setTextAlign(Paint.Align.CENTER);
+
+        //inicializar sonido
+        mpCongreso = MediaPlayer.create(context, R.raw.ep2_congreso);
+        mpCongreso.setOnCompletionListener(mp -> mp.release());
+        mpBase = MediaPlayer.create(context, R.raw.ep2_base);
+        mpBase.start();
     }
 
     @Override
@@ -152,6 +168,8 @@ public class EscenaMapa implements Escena{
 
     @Override
     public void renderizar(Canvas canvas) {
+        if (canvas == null) return;
+
         inicializacionDiferida(canvas);
 
         canvas.drawColor(Color.BLACK);
@@ -225,27 +243,46 @@ public class EscenaMapa implements Escena{
 
         int accion = event.getActionMasked();
         if (accion == MotionEvent.ACTION_DOWN || accion == MotionEvent.ACTION_POINTER_DOWN) {
-            int idx = event.getActionIndex();
-            float tx = event.getX(idx);
-            float ty = event.getY(idx);
+//            int idx = event.getActionIndex();
+//            float tx = event.getX(idx);
+//            float ty = event.getY(idx);
+
 
             // Si el overlay del congreso está visible, solo procesamos su botón
-            if (mostrarOverlayCongreso) {
-                float bw = 300f, bh = 90f;
-                float bx = anchoPantalla / 2f - bw / 2f;
-                float by = altoPantalla / 2f + 120f;
-                if (tx >= bx && tx <= bx + bw && ty >= by && ty <= by + bh) {
+            for (int i = 0; i < event.getPointerCount(); i++) {
+                float tx = event.getX(i);
+                float ty = event.getY(i);
+                Log.d("BOTON", "TOCADO en x=" + tx + " y=" + ty);
+
+                if (mostrarOverlayCongreso && botonEntrarRect != null && botonEntrarRect.contains(tx, ty)) {
+                    Log.d("BOTON", "CLICK ENTRAR DETECTADO");
                     mostrarOverlayCongreso = false;
                     gestorControles.resetearControles();
-                    gestorEscenas.cambiarEscena(
-                            new EscenaDialogoCombate(context, gestorEscenas,
-                                    jugador.getNombre(), jugador.getClase())
-                    );
+                    gestorEscenas.cambiarEscena(new EscenaDialogoCombate(context, gestorEscenas,
+                            jugador.getNombre(), jugador.getClase()));
+                    mpBase.stop();
+                    return;
                 }
-                return; //bloquear cualquier otro toque mientras el overlay está abierto
-            }
+//            }
 
-            if (gestorHUD.onTouch(tx, ty)) return;
+//                float bw = 300f, bh = 90f;
+//                float bx = anchoPantalla / 2f - bw / 2f;
+//                float by = altoPantalla / 2f + 120f;
+//
+//                if (tx >= bx && tx <= bx + bw && ty >= by && ty <= by + bh) {
+//                    Log.d("BOTON", "CLICK ENTRAR DETECTADO");
+//                    mostrarOverlayCongreso = false;
+//                    gestorControles.resetearControles();
+//                    gestorEscenas.cambiarEscena(
+//                            new EscenaDialogoCombate(context, gestorEscenas,
+//                                    jugador.getNombre(), jugador.getClase())
+//                    );
+//                }
+//                return; //bloquear cualquier otro toque mientras el overlay está abierto
+//            }
+
+                if (gestorHUD.onTouch(tx, ty)) return;
+            }
         }
 
         if (!gestorHUD.isPausado()) {
@@ -307,6 +344,12 @@ public class EscenaMapa implements Escena{
             float dcx = personaje.getMundoX() - CONGRESO_MUNDO_X;
             float dcy = personaje.getMundoY() - CONGRESO_MUNDO_Y;
             if (Math.sqrt(dcx * dcx + dcy * dcy) < RADIO_CONGRESO) {
+
+                //reproducir efecto sonido
+                if (mpCongreso != null){
+                    mpCongreso.start();
+                }
+
                 mostrarOverlayCongreso = true;
                 gestorControles.resetearControles();
             }
@@ -355,6 +398,9 @@ public class EscenaMapa implements Escena{
         // Botón entrar
         float bw = 300f, bh = 90f;
         float bx = w / 2f - bw / 2f, by = h / 2f + 120f;
+
+        botonEntrarRect = new RectF(bx, by, bx + bw, by + bh);
+
         RectF boton = new RectF(bx, by, bx + bw, by + bh);
         canvas.drawRoundRect(boton, 16, 16, paintBotonEntrar);
         canvas.drawText("ENTRAR", w / 2f, by + 60, paintBotonTexto);

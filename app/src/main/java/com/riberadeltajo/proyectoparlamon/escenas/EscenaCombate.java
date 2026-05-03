@@ -242,6 +242,9 @@ public class EscenaCombate implements Escena {
 
     @Override
     public void renderizar(Canvas canvas) {
+
+        if (canvas == null) return;
+
         w = canvas.getWidth();
         h = canvas.getHeight();
         if (!dimensionesCalculadas) {
