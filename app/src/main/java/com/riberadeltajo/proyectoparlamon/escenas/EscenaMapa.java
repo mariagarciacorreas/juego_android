@@ -188,6 +188,11 @@ public class EscenaMapa implements Escena{
         paintDebug.setTypeface(Typeface.MONOSPACE);
         paintDebug.setAntiAlias(false);
         canvas.drawText( "X: " + (int)personaje.getMundoX() + "  Y: " + (int)personaje.getMundoY(), 50, 100, paintDebug);
+        //DEBUG - vector joystick
+        canvas.drawText("dx=" + gestorControles.getDx(),50, 140, paintDebug);
+        canvas.drawText("dy=" + gestorControles.getDy(), 50, 180, paintDebug);
+
+
 
         //texto
         canvas.drawText("⚠ Encuentra a Ciber Franco", 20, 50, paintHudTexto);

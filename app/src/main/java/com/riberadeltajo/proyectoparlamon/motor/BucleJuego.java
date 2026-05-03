@@ -53,9 +53,10 @@ public class BucleJuego extends Thread {
             // bloquear el canvas para que nadie más escriba en el
             try {
                 canvas = this.surfaceHolder.lockCanvas();
-                synchronized (surfaceHolder) {
 
-                    if (canvas == null) continue;
+                if (canvas == null) continue;
+
+                synchronized (surfaceHolder) {
 
                     tiempoComienzo = System.currentTimeMillis();
                     framesASaltar = 0;	// resetear los frames saltados

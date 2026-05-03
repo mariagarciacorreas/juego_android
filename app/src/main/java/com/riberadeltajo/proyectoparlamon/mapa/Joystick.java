@@ -24,9 +24,9 @@ public class Joystick {
     private final Paint paintPalometa;
 
     public Joystick(float centroX, float centroY, float radioBase) {
-        this.centroX       = centroX;
-        this.centroY       = centroY;
-        this.radioBase     = radioBase;
+        this.centroX = centroX;
+        this.centroY = centroY;
+        this.radioBase = radioBase;
         this.radioPalometa = radioBase * 0.42f;
         palometaX = centroX;
         palometaY = centroY;
@@ -77,15 +77,21 @@ public class Joystick {
     public int getPointerIdActivo() { return pointerIdActivo; }
 
     private void actualizar(float px, float py) {
-        float ox = px - centroX, oy = py - centroY;
+        float ox = px - centroX;
+        float oy = py - centroY;
         float dist = (float) Math.sqrt(ox * ox + oy * oy);
-        if (dist == 0f) { dx = 0f; dy = 0f; return; }
+        if (dist == 0f) {
+            dx = 0f; dy = 0f;
+            return;
+        }
         float dc = Math.min(dist, radioBase);
         float nx = ox / dist, ny = oy / dist;
         palometaX = centroX + nx * dc;
         palometaY = centroY + ny * dc;
         float mag = dc / radioBase;
-        dx = nx * mag; dy = ny * mag;
+        dx = nx * mag;
+        dy = ny * mag;
+
     }
 
     private boolean dentroDelAreaBase(float px, float py) {
