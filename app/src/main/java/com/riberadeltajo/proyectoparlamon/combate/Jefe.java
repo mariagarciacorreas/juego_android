@@ -3,11 +3,7 @@ package com.riberadeltajo.proyectoparlamon.combate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * El jefe final. Tiene dos fases:
- *   FASE 1 (HP > 50%) — ataques normales
- *   FASE 2 (HP <= 50%) — se enfurece, ataques más fuertes y frases diferentes
- */
+
 public class Jefe {
 
     public enum Fase { FASE_1, FASE_2 }
@@ -134,8 +130,11 @@ public class Jefe {
     Es utilizado por la clase EscenaCombate para mostrar mensaje de transición entre fases
      */
     public boolean cambioFase() {
-        this.setVelocidadJefe(70);
-        return faseActual == Fase.FASE_2 && vidaEnemigo == vidaEnemigoMax / 2;
+        if (faseActual == Fase.FASE_2 && vidaEnemigo <= vidaEnemigoMax/2){
+            this.setVelocidadJefe(70);
+            return true;
+        }
+        return false;
     }
 
     public float getPorcentajeHp() {
