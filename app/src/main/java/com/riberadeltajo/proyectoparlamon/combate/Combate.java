@@ -43,6 +43,21 @@ public class Combate {
         }
 
         Ataques ataque = jugador.getAtaques().get(indiceAtaque);
+
+        if (!ataque.usoAtaquePosible()){
+            mensajeTurno = "¡" + ataque.getNombre() + " no tiene usos restantes!";
+            return;
+        }
+
+        ataque.usarAtaque();
+
+        if (!ataque.ataqueGolpea()){
+            mensajeTurno = "Usas " + ataque.getNombre() + "...\n¡Pero fallas el ataque!";
+            estado = Estado.TURNO_JUGADOR;
+            tiempoFinTurnoJugador = System.currentTimeMillis();
+            return;
+        }
+
         int danio = ataque.atacar();
         enemigo.recibirDanio(danio);
         danioTurnoPasado = danio;
