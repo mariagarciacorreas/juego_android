@@ -36,9 +36,12 @@ public class EscenaMapa implements Escena {
     private static final float ZOOM_FACTOR = 2.0f;
 
     // zona de encuentro con el final boss (coordenadas de mundo ESCALADO)
-    private static final float ZONA_MUNDO_X = 1400f;
-    private static final float ZONA_MUNDO_Y = 480f;
-    private static final float RADIO_ZONA   = 90f;
+//    private static final float ZONA_MUNDO_X = 1684f;
+//    private static final float ZONA_MUNDO_Y = 1440f;
+    private static final float RADIO_ZONA = 120f;
+
+    private float zonaEncuentroX = 0f;
+    private float zonaEncuentroY = 0f;
 
     // subsistema
     private Bitmap mapaEscalado;
@@ -172,10 +175,10 @@ public class EscenaMapa implements Escena {
 
         // debug zona congreso
         if (DEBUG_ZONAS) {
-            float congresoX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
-            float congresoY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
-            canvas.drawCircle(congresoX, congresoY, RADIO_CONGRESO, paintZonaRelleno);
-            canvas.drawCircle(congresoX, congresoY, RADIO_CONGRESO, paintZonaBorde);
+            float congresoX = camara.mundoAPantallaX(zonaEncuentroX);
+            float congresoY = camara.mundoAPantallaY(zonaEncuentroY);
+            canvas.drawCircle(congresoX, congresoY, RADIO_ZONA, paintZonaRelleno);
+            canvas.drawCircle(congresoX, congresoY, RADIO_ZONA, paintZonaBorde);
         }
 
         // cartel congreso
@@ -200,6 +203,8 @@ public class EscenaMapa implements Escena {
         canvas.drawText("dy=" + gestorControles.getDy(), 50, 180, paintDebug);
 
         canvas.drawText("⚠ Encuentra a Ciber Franco", 50, 50, paintHudTexto);
+
+
 
         if (!gestorHUD.isPausado()) {
             gestorControles.dibujar(canvas);
@@ -291,6 +296,9 @@ public class EscenaMapa implements Escena {
         mapaEscalado = Bitmap.createScaledBitmap(mapaOriginal, anchoEscalado, altoEscalado, true);
         mapaOriginal.recycle();
 
+        zonaEncuentroX = mapaEscalado.getWidth() * 0.8008f;
+        zonaEncuentroY = mapaEscalado.getHeight() * 0.2637f;
+
         // 5) Crear mapa de colisiones con EL MISMO zoom
         mapaColisiones = new MapaColisiones(context, zoom);
 
@@ -319,8 +327,11 @@ public class EscenaMapa implements Escena {
 
     private void comprobarZonaEncuentro() {
         // zona Ciber Franco
-        float dx = personaje.getMundoX() - ZONA_MUNDO_X;
-        float dy = personaje.getMundoY() - ZONA_MUNDO_Y;
+//        float dx = personaje.getMundoX() - ZONA_MUNDO_X;
+//        float dy = personaje.getMundoY() - ZONA_MUNDO_Y;
+
+        float dx = personaje.getMundoX() - zonaEncuentroX;
+        float dy = personaje.getMundoY() - zonaEncuentroY;
         if (Math.sqrt(dx * dx + dy * dy) < RADIO_ZONA) {
             gestorControles.resetearControles();
             gestorEscenas.cambiarEscena(

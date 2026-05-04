@@ -22,14 +22,13 @@ import java.util.List;
  * Pantalla de combate por turnos estilo Pokémon clásico.
  *
  * Layout (horizontal):
- * ┌─────────────────────────────────────────────────────┐
- * │  [Sprite Franco]            [Sprite Jugador]        │  ← zona sprites (60% alto)
- * │  CIBER FRANCO ████░░ HP     JUGADOR ████░░ HP       │
- * ├─────────────────────────────────────────────────────┤
- * │  Mensaje de turno                                   │  ← caja de texto (20% alto)
- * ├────────────┬────────────┬────────────┬──────────────┤
- * │  ATAQUE 1  │  ATAQUE 2  │  ATAQUE 3  │  ATAQUE 4   │  ← botones ataque (20% alto)
- * └────────────┴────────────┴────────────┴──────────────┘
+ * ┌──────────────────────────────────────┬──────┐
+ * │ Mensaje de turno (superior) │ │ ← caja mensaje arriba
+ * ├──────────────────────────────────────┤ B1 │
+ * │ │ B2 │
+ * │ [Sprite Franco] [Sprite Jugador] │ B3 │ ← sprites anclados al suelo (90%)
+ * │ │ B4 │ botones 15% ancho, alto completo
+ * └──────────────────────────────────────┴──────┘
  */
 public class EscenaCombate implements Escena {
 
@@ -62,10 +61,10 @@ public class EscenaCombate implements Escena {
     private float w, h;
     private boolean dimensionesCalculadas = false;
 
-    // Mensaje que se muestra en la caja de texto inferior
+    // Mensaje que se muestra en la caja de texto
     private String mensajeActual = "¡Tu turno!";
 
-    // Shake del sprite del enemigo al recibir daño
+    // Shake del sprite al recibir daño
     private float shakeEnemigo = 0f;
     private float shakeJugador = 0f;
     private static final float SHAKE_DURACION = 300f; // ms
@@ -101,7 +100,7 @@ public class EscenaCombate implements Escena {
         paintMensaje.setAntiAlias(false);
 
         paintNombrePersonaje = new Paint();
-        paintNombrePersonaje.setColor(Color.rgb(255, 235, 59)); // amarillo
+        paintNombrePersonaje.setColor(Color.rgb(255, 235, 59));
         paintNombrePersonaje.setTextSize(30);
         paintNombrePersonaje.setTypeface(Typeface.MONOSPACE);
         paintNombrePersonaje.setAntiAlias(false);
@@ -148,19 +147,19 @@ public class EscenaCombate implements Escena {
     }
 
     private void cargarSpriteJugador() {
-        int spriteJugador;
+        int idSprite;
         switch (jugador.getClase().toLowerCase()) {
             case "guerrero":
-                spriteJugador = R.drawable.sprite_guerrero_ejemplo;
+                idSprite = R.drawable.sprite_guerrero_ejemplo;
                 break;
             case "mago":
-                spriteJugador = R.drawable.sprite_mago_ejemplo;
+                idSprite = R.drawable.sprite_mago_ejemplo;
                 break;
             default:
-                spriteJugador = R.drawable.sprite_elfo_ejemplo;
+                idSprite = R.drawable.sprite_elfo_ejemplo;
                 break;
         }
-        Bitmap orig = BitmapFactory.decodeResource(context.getResources(), spriteJugador);
+        Bitmap orig = BitmapFactory.decodeResource(context.getResources(), idSprite);
         int aj = 220;
         int bj = (int) (orig.getHeight() * (aj / (float) orig.getWidth()));
         this.spriteJugador = Bitmap.createScaledBitmap(orig, aj, bj, true);
@@ -209,15 +208,19 @@ public class EscenaCombate implements Escena {
         long ahora = System.currentTimeMillis();
         if (tiempoInicioShakeEnemigo > 0) {
             float elapsed = ahora - tiempoInicioShakeEnemigo;
-            shakeEnemigo = (elapsed < SHAKE_DURACION)
-                    ? 12f * (float) Math.sin(elapsed * 0.08f) * (1 - elapsed / SHAKE_DURACION)
-                    : 0f;
+            if (elapsed < SHAKE_DURACION) {
+                shakeEnemigo = 12f * (float) Math.sin(elapsed * 0.08f) * (1 - elapsed / SHAKE_DURACION);
+            } else {
+                shakeEnemigo = 0f;
+            }
         }
         if (tiempoInicioShakeJugador > 0) {
             float elapsed = ahora - tiempoInicioShakeJugador;
-            shakeJugador = (elapsed < SHAKE_DURACION)
-                    ? 10f * (float) Math.sin(elapsed * 0.08f) * (1 - elapsed / SHAKE_DURACION)
-                    : 0f;
+            if (elapsed < SHAKE_DURACION) {
+                shakeJugador = 10f * (float) Math.sin(elapsed * 0.08f) * (1 - elapsed / SHAKE_DURACION);
+            } else {
+                shakeJugador = 0f;
+            }
         }
 
         // Flash fase 2 timeout
@@ -242,7 +245,6 @@ public class EscenaCombate implements Escena {
 
     @Override
     public void renderizar(Canvas canvas) {
-
         if (canvas == null) return;
 
         w = canvas.getWidth();
@@ -253,21 +255,25 @@ public class EscenaCombate implements Escena {
             dimensionesCalculadas = true;
         }
 
+        // Fondo a pantalla completa
         if (fondoJefe != null) {
             canvas.drawBitmap(fondoJefe, 0, 0, null);
         } else {
             canvas.drawColor(Color.BLACK);
         }
 
-        float altoSprites = h * 0.48f;
-        float altoMensaje = h * 0.20f;
-        float altoBotones = h * 0.32f;
-        float yMensaje = altoSprites;
-        float yBotones = yMensaje + altoMensaje;
+        // Sprites anclados al suelo del fondo
+        dibujarZonaSprites(canvas);
 
-        dibujarZonaSprites(canvas, altoSprites);
-        dibujarCajaMensaje(canvas, yMensaje, altoMensaje);
-        dibujarBotonesAtaque(canvas, yBotones, altoBotones);
+        // Caja de mensaje: franja superior
+        // Ancho del 85% para no solaparse con la columna de botones (15% derecha)
+        float anchoCajaMensaje = w * 0.85f;
+        float altoCajaMensaje = h * 0.12f;
+        float yCajaMensaje = 0f;
+        dibujarCajaMensaje(canvas, yCajaMensaje, altoCajaMensaje, anchoCajaMensaje);
+
+        // Botones verticales en la franja derecha (15% del ancho, alto completo)
+        dibujarBotonesAtaque(canvas);
 
         // Flash de fase 2
         if (mostrarFlashFase2) {
@@ -285,12 +291,19 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    private void dibujarZonaSprites(Canvas canvas, float altoZona) {
-        // Línea de suelo: ~68% del alto de la zona de sprites
-        float ysuelo = altoZona * 0.68f;
+    /**
+     * Dibuja los dos sprites anclados al suelo real de la pantalla.
+     * El "suelo" se sitúa al 90% de la altura total.
+     * El enemigo se acerca al jugador (0.18 del ancho).
+     * El jugador se mantiene al 50% del ancho, dejando el 15% derecho para los botones.
+     */
+    private void dibujarZonaSprites(Canvas canvas) {
+        // Línea de suelo: 90% de la altura total de pantalla
+        float ysuelo = h * 0.90f;
 
-        // Sprite enemigo (izquierda) — pies en la línea de suelo
-        float exEnemigo = w * 0.08f + shakeEnemigo;
+        // ── Sprite enemigo (izquierda) ────────────────────────────────────
+        // Acercado al jugador respecto a la posición anterior (0.06 → 0.18)
+        float exEnemigo = w * 0.18f + shakeEnemigo;
         float eyEnemigo = ysuelo - spriteEnemigo.getHeight();
 
         if (enemigo.getFase() == Jefe.Fase.FASE_2) {
@@ -303,7 +316,7 @@ public class EscenaCombate implements Escena {
             canvas.drawBitmap(spriteEnemigo, exEnemigo, eyEnemigo, null);
         }
 
-        // HP bar enemigo — encima del sprite, pegada al borde superior
+        // HP bar enemigo — justo encima del sprite
         float byE = eyEnemigo - 48f;
         dibujarBarraHpConNombre(canvas, exEnemigo, byE, 200,
                 "CIBER FRANCO", enemigo.getVidaEnemigo(), enemigo.getVidaEnemigoMax(),
@@ -316,8 +329,10 @@ public class EscenaCombate implements Escena {
             paintFase2.setTextSize(40);
         }
 
-        // Sprite jugador (derecha) — pies en la línea de suelo
-        float exJugador = w * 0.72f + shakeJugador;
+        // ── Sprite jugador (centro-derecha) ──────────────────────────────
+        // Se coloca al 50% del ancho para que la columna de botones
+        // (que empieza al 70%) quede justo a su lado sin superponerse.
+        float exJugador = w * 0.50f + shakeJugador;
         float eyJugador = ysuelo - spriteJugador.getHeight();
         canvas.drawBitmap(spriteJugador, exJugador, eyJugador, null);
 
@@ -328,7 +343,10 @@ public class EscenaCombate implements Escena {
                 jugador.getPorcentajeHp(), true);
     }
 
-    // Metodo auxiliar que agrupa nombre + barra + HP en un bloque limpio
+    /**
+     * Dibuja el bloque de nombre + barra de HP + texto HP.
+     * El color del nombre varía según si es el jugador (azul claro) o el enemigo (amarillo).
+     */
     private void dibujarBarraHpConNombre(Canvas canvas, float x, float y, float ancho,
                                          String nombre, int vidaActual, int vidaMax,
                                          float porcentaje, boolean esJugador) {
@@ -337,12 +355,13 @@ public class EscenaCombate implements Escena {
         fondoHp.setColor(Color.argb(150, 0, 0, 0));
         canvas.drawRoundRect(x - 6, y - 28, x + ancho + 6, y + 22, 6, 6, fondoHp);
 
-        // Nombre
-        paintNombrePersonaje.setColor(esJugador
-                ? Color.rgb(100, 220, 255)
-                : Color.rgb(255, 235, 59));
+        // Color del nombre según personaje
+        if (esJugador) {
+            paintNombrePersonaje.setColor(Color.rgb(100, 220, 255));
+        } else {
+            paintNombrePersonaje.setColor(Color.rgb(255, 235, 59));
+        }
         canvas.drawText(nombre, x, y - 8, paintNombrePersonaje);
-
 
         // Texto HP pequeño
         Paint paintHpNum = new Paint();
@@ -353,113 +372,128 @@ public class EscenaCombate implements Escena {
         canvas.drawText("HP: " + vidaActual + "/" + vidaMax, x, y + 22, paintHpNum);
     }
 
-    private void dibujarCajaMensaje(Canvas canvas, float yMensaje, float altoMensaje) {
-        // Fondo semitransparente — protagonismo al fondo y sprites
+    /**
+     * Dibuja la caja de mensaje en la esquina inferior izquierda.
+     * Solo ocupa el ancho indicado para dejar espacio a la columna de botones.
+     */
+    private void dibujarCajaMensaje(Canvas canvas, float yMensaje, float altoMensaje, float ancho) {
+        // Fondo semitransparente en la franja izquierda
         Paint fondoCaja = new Paint();
         fondoCaja.setColor(Color.argb(200, 10, 10, 15));
-        canvas.drawRect(0, yMensaje, w, yMensaje + altoMensaje, fondoCaja);
+        canvas.drawRect(0, yMensaje, ancho, yMensaje + altoMensaje, fondoCaja);
 
-        // Línea separadora superior sutil
+        // Línea separadora superior
         Paint linea = new Paint();
         linea.setColor(Color.argb(180, 255, 235, 59));
         linea.setStrokeWidth(1.5f);
-        canvas.drawLine(0, yMensaje, w, yMensaje, linea);
+        canvas.drawLine(0, yMensaje, ancho, yMensaje, linea);
 
-        // Texto grande y centrado
+        // Texto centrado dentro del ancho de la caja
         paintMensaje.setTextSize(34);
         String[] lineas = mensajeActual.split("\n");
         float lineH = paintMensaje.getTextSize() + 12;
         float totalAltoTexto = lineas.length * lineH;
         float startY = yMensaje + (altoMensaje - totalAltoTexto) / 2f + paintMensaje.getTextSize();
 
-        for (String linea2 : lineas) {
-            float tw = paintMensaje.measureText(linea2);
-            canvas.drawText(linea2, w / 2f - tw / 2f, startY, paintMensaje);
+        for (String lineaTexto : lineas) {
+            float tw = paintMensaje.measureText(lineaTexto);
+            canvas.drawText(lineaTexto, ancho / 2f - tw / 2f, startY, paintMensaje);
             startY += lineH;
         }
     }
 
-    private void dibujarBotonesAtaque(Canvas canvas, float yBotones, float altoBotones) {
+    /**
+     * Dibuja los botones de ataque en disposición vertical sobre la franja derecha.
+     * Los colores de fondo, borde y texto cambian según si el jugador puede actuar.
+     */
+    private void dibujarBotonesAtaque(Canvas canvas) {
         if (botonesAtaque == null) return;
 
         List<Ataques> ataques = jugador.getAtaques();
         boolean puedeSeleccionar = gestorCombate.getEstado() == Combate.Estado.ESPERAR_JUGADOR;
 
-        // Fondo general del área de botones
-        Paint fondoArea = new Paint();
-        fondoArea.setColor(Color.argb(210, 5, 5, 10));
-        canvas.drawRect(0, yBotones, w, yBotones + altoBotones, fondoArea);
-
-        // Línea separadora superior
-        Paint lineaSep = new Paint();
-        lineaSep.setColor(Color.argb(180, 255, 235, 59));
-        lineaSep.setStrokeWidth(1.5f);
-        canvas.drawLine(0, yBotones, w, yBotones, lineaSep);
-
         for (int i = 0; i < botonesAtaque.length; i++) {
+            if (i >= ataques.size()) continue;
+
             RectF btn = botonesAtaque[i];
+            Ataques atk = ataques.get(i);
 
-            if (i < ataques.size()) {
-                Ataques atk = ataques.get(i);
-
-                // Fondo del botón — minimalista, solo un borde
-                Paint fondoBtn = new Paint();
-                fondoBtn.setColor(puedeSeleccionar
-                        ? Color.argb(0, 0, 0, 0)   // transparente cuando activo
-                        : Color.argb(80, 30, 30, 30)); // gris oscuro cuando inactivo
-                fondoBtn.setStyle(Paint.Style.FILL);
-                canvas.drawRoundRect(btn, 8, 8, fondoBtn);
-
-                // Borde del botón
-                Paint bordeBtn = new Paint();
-                bordeBtn.setStyle(Paint.Style.STROKE);
-                bordeBtn.setStrokeWidth(1.5f);
-                bordeBtn.setColor(puedeSeleccionar
-                        ? Color.argb(200, 255, 235, 59)  // amarillo activo
-                        : Color.argb(80, 150, 150, 150)); // gris inactivo
-                canvas.drawRoundRect(btn, 8, 8, bordeBtn);
-
-                // Nombre del ataque — grande y centrado verticalmente
-                paintTextoBtn.setColor(puedeSeleccionar ? Color.WHITE : Color.GRAY);
-                paintTextoBtn.setTextSize(28);
-                float tw = paintTextoBtn.measureText(atk.getNombre());
-                float tx = btn.centerX() - tw / 2f;
-                float ty = btn.centerY() - 14;
-                canvas.drawText(atk.getNombre(), tx, ty, paintTextoBtn);
-
-                // Potencia — pequeña, debajo, color sutil
-                Paint paintPotencia = new Paint();
-                paintPotencia.setTextSize(19);
-                paintPotencia.setTypeface(Typeface.MONOSPACE);
-                paintPotencia.setAntiAlias(false);
-                paintPotencia.setColor(puedeSeleccionar
-                        ? Color.argb(180, 180, 210, 255)
-                        : Color.argb(80, 150, 150, 150));
-                String potStr = "POT " + atk.getPotencia();
-                float tw2 = paintPotencia.measureText(potStr);
-                canvas.drawText(potStr, btn.centerX() - tw2 / 2f, ty + 30, paintPotencia);
+            // ── Fondo del botón ──────────────────────────────────────────
+            Paint fondoBtn = new Paint();
+            fondoBtn.setStyle(Paint.Style.FILL);
+            if (puedeSeleccionar) {
+                fondoBtn.setColor(Color.argb(180, 10, 10, 20));
+            } else {
+                fondoBtn.setColor(Color.argb(80, 30, 30, 30));
             }
+            canvas.drawRoundRect(btn, 10, 10, fondoBtn);
+
+            // ── Borde del botón ──────────────────────────────────────────
+            Paint bordeBtn = new Paint();
+            bordeBtn.setStyle(Paint.Style.STROKE);
+            bordeBtn.setStrokeWidth(1.5f);
+            if (puedeSeleccionar) {
+                bordeBtn.setColor(Color.argb(200, 255, 235, 59));
+            } else {
+                bordeBtn.setColor(Color.argb(80, 150, 150, 150));
+            }
+            canvas.drawRoundRect(btn, 10, 10, bordeBtn);
+
+            // ── Nombre del ataque ────────────────────────────────────────
+            paintTextoBtn.setTextSize(24);
+            if (puedeSeleccionar) {
+                paintTextoBtn.setColor(Color.WHITE);
+            } else {
+                paintTextoBtn.setColor(Color.GRAY);
+            }
+            float tw = paintTextoBtn.measureText(atk.getNombre());
+            float tx = btn.centerX() - tw / 2f;
+            float ty = btn.centerY() - 12f;
+            canvas.drawText(atk.getNombre(), tx, ty, paintTextoBtn);
+
+            // ── Potencia ─────────────────────────────────────────────────
+            Paint paintPotencia = new Paint();
+            paintPotencia.setTextSize(17);
+            paintPotencia.setTypeface(Typeface.MONOSPACE);
+            paintPotencia.setAntiAlias(false);
+            if (puedeSeleccionar) {
+                paintPotencia.setColor(Color.argb(180, 180, 210, 255));
+            } else {
+                paintPotencia.setColor(Color.argb(80, 150, 150, 150));
+            }
+            String potStr = "POT " + atk.getPotencia();
+            float tw2 = paintPotencia.measureText(potStr);
+            canvas.drawText(potStr, btn.centerX() - tw2 / 2f, ty + 26f, paintPotencia);
         }
     }
 
+    /**
+     * Calcula las zonas táctiles de los botones de ataque.
+     * Disposición: columna vertical en la franja derecha de la pantalla.
+     * Ocupa todo el alto de pantalla. Ancho fijo del 15% de la pantalla.
+     */
     private void calcularBotones() {
-        float yBotones = h * 0.68f;
-        float altoBotones = h * 0.32f;
         int n = jugador.getAtaques().size();
 
-        // Separadores verticales entre botones (líneas, no márgenes gordos)
-        float margen = 8f;
-        float anchoTotal = w - margen * 2;
-        float anchoBtn = anchoTotal / n;
+        // Franja derecha: 15% del ancho de pantalla
+        float anchoColumna = w * 0.15f;
+        float xColumna = w - anchoColumna;
+
+        // Ocupa todo el alto de pantalla con pequeño margen
+        float yInicio = 8f;
+        float yFin = h - 8f;
+        float altoTotal = yFin - yInicio;
+        float margenV = 6f;
+        float altoBtn = (altoTotal - margenV * (n + 1)) / n;
 
         botonesAtaque = new RectF[n];
         for (int i = 0; i < n; i++) {
-            float x = margen + i * anchoBtn;
+            float yTop = yInicio + margenV + i * (altoBtn + margenV);
             botonesAtaque[i] = new RectF(
-                    x + 4,
-                    yBotones + 10,
-                    x + anchoBtn - 4,
-                    yBotones + altoBotones - 10
+                    xColumna + 4f,
+                    yTop,
+                    w - 4f,
+                    yTop + altoBtn
             );
         }
     }
@@ -486,7 +520,7 @@ public class EscenaCombate implements Escena {
         // manteniendo proporciones, recortando si hace falta
         float scaleX = (float) screenW / fondoJefe.getWidth();
         float scaleY = (float) screenH / fondoJefe.getHeight();
-        float scale = Math.max(scaleX, scaleY); // cover = el mayor de los dos
+        float scale = Math.max(scaleX, scaleY);
 
         int nuevoAncho = (int) (fondoJefe.getWidth() * scale);
         int nuevoAlto = (int) (fondoJefe.getHeight() * scale);
