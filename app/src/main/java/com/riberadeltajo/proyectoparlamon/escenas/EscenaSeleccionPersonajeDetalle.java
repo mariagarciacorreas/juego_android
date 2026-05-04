@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
+import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
 public class EscenaSeleccionPersonajeDetalle implements Escena{
 
@@ -91,6 +92,8 @@ public class EscenaSeleccionPersonajeDetalle implements Escena{
 
     @Override
     public void renderizar(Canvas canvas) {
+
+        if (canvas == null) return;
 
         canvas.drawColor(Color.DKGRAY);
 

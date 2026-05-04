@@ -7,11 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.dialogos.EscritorTexto;
 import com.riberadeltajo.proyectoparlamon.dialogos.GestorDialogos;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
+import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +43,10 @@ public class EscenaInicio implements Escena{
     private Paint paintTexto;
     private Paint paintPista;
 
+    //sonido
+    private MediaPlayer mpBase;
+    private MediaPlayer mpCiberFrank;
+
     public EscenaInicio(Context context, GestorEscenas gestorEscenas) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
@@ -69,6 +75,9 @@ public class EscenaInicio implements Escena{
         //50 milisegundos enre letra y letra
         escritor = new EscritorTexto(50);
         cargarPantalla(0);
+
+        //inicializar sonido
+        SonidoManager.playBase(context);
     }
 
     private void cargarPantalla(int index){
@@ -119,6 +128,9 @@ public class EscenaInicio implements Escena{
 
     @Override
     public void renderizar(Canvas canvas) {
+
+        if (canvas == null) return;
+
         canvas.drawColor(Color.DKGRAY);
 
         String[] lineas = escritor.getLineasVisibles();
