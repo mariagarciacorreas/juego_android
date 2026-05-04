@@ -23,72 +23,66 @@ import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
-public class EscenaMapa implements Escena{
+public class EscenaMapa implements Escena {
 
-    private static final boolean DEBUG_ZONAS = true; // cambiar a false para release
+    private static final boolean DEBUG_ZONAS = true;
 
-
-    //dependencias
-    private Context context;
-    private GestorEscenas gestorEscenas;
+    // dependencias
+    private final Context context;
+    private final GestorEscenas gestorEscenas;
     private final Jugador jugador;
 
-    //zoom fijo
-    private static final float ZOOM_FACTOR = 2.0f; //mapa al triple de su tamaño original
+    // zoom base (multiplicador sobre el mínimo para cubrir pantalla)
+    private static final float ZOOM_FACTOR = 2.0f;
 
-    //zona de encuentro con el final boss (coordenadas de mundo)
-    private static final float ZONA_MUNDO_X = 1400f; //pixeles en el mapa escalado
+    // zona de encuentro con el final boss (coordenadas de mundo ESCALADO)
+    private static final float ZONA_MUNDO_X = 1400f;
     private static final float ZONA_MUNDO_Y = 480f;
-    private static final float RADIO_ZONA = 90f;
+    private static final float RADIO_ZONA   = 90f;
 
-    //subsistema
-    private Bitmap mapaEscalado; //bitmap con el zoom de la vista aplicado
+    // subsistema
+    private Bitmap mapaEscalado;
     private Camara camara;
     private PersonajeMapa personaje;
     private GestorControles gestorControles;
     private GestorHUD gestorHUD;
 
-    //estado
+    // estado
     private float anchoPantalla = 0f;
-    private float altoPantalla = 0f;
+    private float altoPantalla  = 0f;
     private boolean inicializado = false;
 
-    //paints
+    // paints
     private final Paint paintSrpite = new Paint();
-    private final Paint paintMapa = new Paint(Paint.FILTER_BITMAP_FLAG);
+    private final Paint paintMapa   = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Paint paintHudTexto;
 
-    //paint para zona de encuentro - marcador visual
+    // zona encuentro visual
     private final Paint paintZonaRelleno;
     private final Paint paintZonaBorde;
 
-    //zona congreso - batalla con final boss - esquina superior derecha del mapa
+    // zona congreso (coordenadas de mundo ESCALADO)
     private static final float CONGRESO_MUNDO_X = 7550f;
     private static final float CONGRESO_MUNDO_Y = 1440f;
     private static final float RADIO_CONGRESO   = 150f;
 
-    // Estado del overlay del congreso
     private boolean mostrarOverlayCongreso = false;
 
-    //cartel advertencia y overlay
+    // cartel / overlay
     private final Paint paintCartel;
     private final Paint paintCartelTexto;
     private final Paint paintOverlay;
     private final Paint paintOverlayTexto;
     private final Paint paintBotonEntrar;
-    private RectF botonEntrarRect;
-
     private final Paint paintBotonTexto;
 
-    //mapa colisiones (mapa transitable)
+    // colisiones
     private MapaColisiones mapaColisiones;
 
-    //sonido
+    // sonido
     private final MediaPlayer mpCongreso;
     private final MediaPlayer mpBase;
 
-
-    //constructor
     public EscenaMapa(Context context, GestorEscenas gestorEscenas, Jugador jugador) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
@@ -111,7 +105,6 @@ public class EscenaMapa implements Escena{
         paintZonaBorde.setStyle(Paint.Style.STROKE);
         paintZonaBorde.setStrokeWidth(2f);
 
-        //zona congreso
         paintCartel = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintCartel.setColor(Color.rgb(180, 30, 30));
         paintCartel.setStyle(Paint.Style.FILL);
@@ -141,28 +134,28 @@ public class EscenaMapa implements Escena{
         paintBotonTexto.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
         paintBotonTexto.setTextAlign(Paint.Align.CENTER);
 
-        //inicializar sonido
         mpCongreso = MediaPlayer.create(context, R.raw.ep2_congreso);
-        mpCongreso.setOnCompletionListener(mp -> mp.release());
+        mpCongreso.setOnCompletionListener(mp -> mp.seekTo(0));
         mpBase = MediaPlayer.create(context, R.raw.ep2_base);
         mpBase.start();
     }
 
     @Override
     public void actualizar() {
-        if(!inicializado) return;
+        if (!inicializado) return;
 
         gestorHUD.actualizar();
+        if (gestorHUD.isPausado()) return;
 
-        if(gestorHUD.isPausado()) return;
+        personaje.actualizar(
+                gestorControles.getDx(),
+                gestorControles.getDy(),
+                mapaEscalado.getWidth(),
+                mapaEscalado.getHeight(),
+                mapaColisiones
+        );
 
-        //mover al personaje en el mundo (coordenadas mundo)
-        personaje.actualizar(gestorControles.getDx(), gestorControles.getDy(),
-                            mapaEscalado.getWidth(), mapaEscalado.getHeight(), mapaColisiones);
-
-        //actualizar cámara con la posición del personaje
         camara.actualizar(personaje.getMundoX(), personaje.getMundoY());
-
         comprobarZonaEncuentro();
     }
 
@@ -174,11 +167,10 @@ public class EscenaMapa implements Escena{
 
         canvas.drawColor(Color.BLACK);
 
-        //mapa desplazado
+        // mapa desplazado
         canvas.drawBitmap(mapaEscalado, -camara.getCamX(), -camara.getCamY(), paintMapa);
 
-
-        //zona de encuentro
+        // debug zona congreso
         if (DEBUG_ZONAS) {
             float congresoX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
             float congresoY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
@@ -186,103 +178,87 @@ public class EscenaMapa implements Escena{
             canvas.drawCircle(congresoX, congresoY, RADIO_CONGRESO, paintZonaBorde);
         }
 
-        // Cartel de advertencia en el congreso (coordenadas pantalla)
+        // cartel congreso
         float cartelX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
         float cartelY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
-
-        // Solo dibujarlo si está en pantalla
         if (cartelX > -200 && cartelX < anchoPantalla + 200
                 && cartelY > -100 && cartelY < altoPantalla + 100) {
             dibujarCartel(canvas, cartelX, cartelY);
         }
 
-        //personaje
+        // personaje
         personaje.dibujar(canvas, paintSrpite, camara);
 
-        // DEBUG — coordenadas del personaje en el mundo
+        // debug coords
         Paint paintDebug = new Paint();
         paintDebug.setColor(Color.rgb(0, 255, 0));
         paintDebug.setTextSize(28f);
         paintDebug.setTypeface(Typeface.MONOSPACE);
         paintDebug.setAntiAlias(false);
-        canvas.drawText( "X: " + (int)personaje.getMundoX() + "  Y: " + (int)personaje.getMundoY(), 50, 100, paintDebug);
-        //DEBUG - vector joystick
-        canvas.drawText("dx=" + gestorControles.getDx(),50, 140, paintDebug);
+        canvas.drawText("X: " + (int) personaje.getMundoX() + "  Y: " + (int) personaje.getMundoY(), 50, 100, paintDebug);
+        canvas.drawText("dx=" + gestorControles.getDx(), 50, 140, paintDebug);
         canvas.drawText("dy=" + gestorControles.getDy(), 50, 180, paintDebug);
 
+        canvas.drawText("⚠ Encuentra a Ciber Franco", 50, 50, paintHudTexto);
 
+        if (!gestorHUD.isPausado()) {
+            gestorControles.dibujar(canvas);
+        }
 
-        //texto
-        canvas.drawText("⚠ Encuentra a Ciber Franco", 20, 50, paintHudTexto);
-
-        // Overlay congreso
         if (mostrarOverlayCongreso) {
             dibujarOverlayCongreso(canvas);
         }
 
-        //controles táctiles - coordenadas de pantalla fijas
-        if(!gestorHUD.isPausado()){
-            gestorControles.dibujar(canvas);
-        }
-
-        //botones y overlays - encima de todo
         gestorHUD.dibujar(canvas);
-
     }
 
     @Override
-    public void onTouch(float x, float y) {
+    public void onTouch(float x, float y) { }
 
-    }
-
-
-    //gestión del multitouch
     @Override
     public void onTouchEvent(MotionEvent event) {
         if (!inicializado) return;
 
         int accion = event.getActionMasked();
         if (accion == MotionEvent.ACTION_DOWN || accion == MotionEvent.ACTION_POINTER_DOWN) {
-//            int idx = event.getActionIndex();
-//            float tx = event.getX(idx);
-//            float ty = event.getY(idx);
+            int idx = event.getActionIndex();
+            float tx = event.getX(idx);
+            float ty = event.getY(idx);
 
+            if (mostrarOverlayCongreso) {
+                float bw = 300f, bh = 90f;
+                float bx = anchoPantalla / 2f - bw / 2f;
+                float by = altoPantalla / 2f + 120f;
 
-            // Si el overlay del congreso está visible, solo procesamos su botón
-            for (int i = 0; i < event.getPointerCount(); i++) {
-                float tx = event.getX(i);
-                float ty = event.getY(i);
-                Log.d("BOTON", "TOCADO en x=" + tx + " y=" + ty);
+                RectF zonaClick = new RectF(
+                        bx - 30f,
+                        by - 30f,
+                        bx + bw + 30f,
+                        by + bh + 30f
+                );
 
-                if (mostrarOverlayCongreso && botonEntrarRect != null && botonEntrarRect.contains(tx, ty)) {
+                if (zonaClick.contains(tx, ty)) {
                     Log.d("BOTON", "CLICK ENTRAR DETECTADO");
                     mostrarOverlayCongreso = false;
                     gestorControles.resetearControles();
-                    gestorEscenas.cambiarEscena(new EscenaDialogoCombate(context, gestorEscenas,
-                            jugador.getNombre(), jugador.getClase()));
-                    mpBase.stop();
-                    return;
+
+                    if (mpBase != null && mpBase.isPlaying()) {
+                        mpBase.stop();
+                    }
+
+                    gestorEscenas.cambiarEscena(
+                            new EscenaDialogoCombate(
+                                    context,
+                                    gestorEscenas,
+                                    jugador.getNombre(),
+                                    jugador.getClase()
+                            )
+                    );
                 }
-//            }
-
-//                float bw = 300f, bh = 90f;
-//                float bx = anchoPantalla / 2f - bw / 2f;
-//                float by = altoPantalla / 2f + 120f;
-//
-//                if (tx >= bx && tx <= bx + bw && ty >= by && ty <= by + bh) {
-//                    Log.d("BOTON", "CLICK ENTRAR DETECTADO");
-//                    mostrarOverlayCongreso = false;
-//                    gestorControles.resetearControles();
-//                    gestorEscenas.cambiarEscena(
-//                            new EscenaDialogoCombate(context, gestorEscenas,
-//                                    jugador.getNombre(), jugador.getClase())
-//                    );
-//                }
-//                return; //bloquear cualquier otro toque mientras el overlay está abierto
-//            }
-
-                if (gestorHUD.onTouch(tx, ty)) return;
+                return;
             }
+
+            if (gestorHUD.onTouch(tx, ty)) return;
         }
 
         if (!gestorHUD.isPausado()) {
@@ -290,34 +266,48 @@ public class EscenaMapa implements Escena{
         }
     }
 
-
-
-    //función para controlar la inicialización diferida en caso necesario
-    private void inicializacionDiferida(Canvas canvas){
+    private void inicializacionDiferida(Canvas canvas) {
         if (inicializado) return;
 
         anchoPantalla = canvas.getWidth();
         altoPantalla  = canvas.getHeight();
 
-        // Cargar y escalar el mapa
+        // 1) Cargar mapa original
         Bitmap mapaOriginal = BitmapFactory.decodeResource(context.getResources(), R.drawable.memopolis);
 
-        mapaColisiones = new MapaColisiones(context, ZOOM_FACTOR);
+        // 2) Calcular escala mínima para que SIEMPRE cubra la pantalla
+        float escalaBase = Math.max(
+                anchoPantalla / mapaOriginal.getWidth(),
+                altoPantalla / mapaOriginal.getHeight()
+        );
 
-        int anchoEscalado = Math.round(mapaOriginal.getWidth()  * ZOOM_FACTOR);
-        int altoEscalado  = Math.round(mapaOriginal.getHeight() * ZOOM_FACTOR);
+        // 3) Aplicar tu zoom base encima
+        float zoom = escalaBase * ZOOM_FACTOR;
+
+        // 4) Escalar mapa visual
+        int anchoEscalado = Math.round(mapaOriginal.getWidth() * zoom);
+        int altoEscalado  = Math.round(mapaOriginal.getHeight() * zoom);
+
         mapaEscalado = Bitmap.createScaledBitmap(mapaOriginal, anchoEscalado, altoEscalado, true);
         mapaOriginal.recycle();
 
-        // Cámara — conoce las dimensiones de pantalla y del mundo
-        camara = new Camara(anchoPantalla, altoPantalla, mapaEscalado.getWidth(), mapaEscalado.getHeight());
+        // 5) Crear mapa de colisiones con EL MISMO zoom
+        mapaColisiones = new MapaColisiones(context, zoom);
 
-        // Posición inicial del personaje
-        float inicioX = 1883;
-        float inicioY = 5272;
+        // 6) Cámara con dimensiones del mundo escalado
+        camara = new Camara(anchoPantalla, altoPantalla, anchoEscalado, altoEscalado);
+
+        // 7) Posición inicial del personaje (coordenadas de mundo ESCALADO)
+//        float inicioX = 1590f;
+//        float inicioY = 1586f;
+
+        float centroX = mapaEscalado.getWidth() * 0.5726f;
+        float centroY = mapaEscalado.getHeight() * 0.7461f;
+
+        float inicioX = centroX - 75f;
+        float inicioY = centroY - 88f;
+
         personaje = new PersonajeMapa(context, jugador, inicioX, inicioY);
-
-        //centra la camara sobre el personaje
         camara.centrarEn(inicioX, inicioY);
 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
@@ -327,29 +317,30 @@ public class EscenaMapa implements Escena{
         inicializado = true;
     }
 
-    private void comprobarZonaEncuentro(){
-        //zona Ciber Franco
+    private void comprobarZonaEncuentro() {
+        // zona Ciber Franco
         float dx = personaje.getMundoX() - ZONA_MUNDO_X;
         float dy = personaje.getMundoY() - ZONA_MUNDO_Y;
         if (Math.sqrt(dx * dx + dy * dy) < RADIO_ZONA) {
             gestorControles.resetearControles();
             gestorEscenas.cambiarEscena(
-                    new EscenaDialogoCombate(context, gestorEscenas,
-                            jugador.getNombre(), jugador.getClase())
+                    new EscenaDialogoCombate(
+                            context,
+                            gestorEscenas,
+                            jugador.getNombre(),
+                            jugador.getClase()
+                    )
             );
         }
 
-        //zona congreso
+        // zona congreso
         if (!mostrarOverlayCongreso) {
             float dcx = personaje.getMundoX() - CONGRESO_MUNDO_X;
             float dcy = personaje.getMundoY() - CONGRESO_MUNDO_Y;
             if (Math.sqrt(dcx * dcx + dcy * dcy) < RADIO_CONGRESO) {
-
-                //reproducir efecto sonido
-                if (mpCongreso != null){
+                if (mpCongreso != null) {
                     mpCongreso.start();
                 }
-
                 mostrarOverlayCongreso = true;
                 gestorControles.resetearControles();
             }
@@ -357,55 +348,43 @@ public class EscenaMapa implements Escena{
     }
 
     private void dibujarCartel(Canvas canvas, float px, float py) {
-        float w = 160f;
+        float w = 400f;
         float h = 80f;
-        float bx = px - w / 2f, by = py - h;
+        float bx = px - w / 2f;
+        float by = py - h - h;
 
-        // Fondo rojo del cartel
         RectF rect = new RectF(bx, by, bx + w, by + h);
         canvas.drawRoundRect(rect, 8, 8, paintCartel);
 
-        // Borde amarillo
         Paint borde = new Paint(Paint.ANTI_ALIAS_FLAG);
         borde.setColor(Color.rgb(255, 235, 59));
         borde.setStyle(Paint.Style.STROKE);
         borde.setStrokeWidth(3f);
         canvas.drawRoundRect(rect, 8, 8, borde);
 
-        // Texto
-        canvas.drawText("⚠ PELIGRO", px, by + 30, paintCartelTexto);
-        canvas.drawText("DICTADOR", px, by + 58, paintCartelTexto);
+        canvas.drawText("⚠ PELIGRO DICTADOR", px, by + 50, paintCartelTexto);
     }
 
     private void dibujarOverlayCongreso(Canvas canvas) {
         float w = anchoPantalla, h = altoPantalla;
 
-        // Fondo oscuro
         canvas.drawRect(0, 0, w, h, paintOverlay);
 
-        // Título
         canvas.drawText("⚠ ZONA PELIGROSA", w / 2f, h / 2f - 120, paintOverlayTexto);
-        canvas.drawText("El Congreso", w / 2f, h / 2f - 60, paintOverlayTexto);
+        canvas.drawText("El Congreso",       w / 2f, h / 2f - 60,  paintOverlayTexto);
 
         paintOverlayTexto.setTextSize(32f);
         paintOverlayTexto.setColor(Color.WHITE);
-        canvas.drawText("Ciber Franco te espera dentro.", w / 2f, h / 2f, paintOverlayTexto);
-        canvas.drawText("No habrá vuelta atrás.", w / 2f, h / 2f + 45, paintOverlayTexto);
-        // restaurar
+        canvas.drawText("Ciber Franco te espera dentro.", w / 2f, h / 2f,      paintOverlayTexto);
+        canvas.drawText("No habrá vuelta atrás.",         w / 2f, h / 2f + 45, paintOverlayTexto);
         paintOverlayTexto.setTextSize(48f);
         paintOverlayTexto.setColor(Color.rgb(255, 235, 59));
 
-        // Botón entrar
         float bw = 300f, bh = 90f;
         float bx = w / 2f - bw / 2f, by = h / 2f + 120f;
-
-        botonEntrarRect = new RectF(bx, by, bx + bw, by + bh);
 
         RectF boton = new RectF(bx, by, bx + bw, by + bh);
         canvas.drawRoundRect(boton, 16, 16, paintBotonEntrar);
         canvas.drawText("ENTRAR", w / 2f, by + 60, paintBotonTexto);
     }
 }
-
-
-

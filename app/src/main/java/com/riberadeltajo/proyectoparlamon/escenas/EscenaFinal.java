@@ -89,6 +89,9 @@ public class EscenaFinal implements Escena {
 
     @Override
     public void renderizar(Canvas canvas) {
+
+        if (canvas == null) return;
+
         float w = canvas.getWidth();
         float h = canvas.getHeight();
 

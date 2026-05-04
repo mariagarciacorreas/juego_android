@@ -77,6 +77,8 @@ public class EscenaSeleccionPersonaje implements Escena{
     @Override
     public void renderizar(Canvas canvas) {
 
+        if (canvas == null) return;
+
         canvas.drawColor(Color.DKGRAY);
 
         float w = canvas.getWidth();
