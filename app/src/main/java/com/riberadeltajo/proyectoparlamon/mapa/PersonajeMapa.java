@@ -10,18 +10,25 @@ import android.util.Log;
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 
-//Sprite del pj en el mapa con coordenadas respecto al mundo
-public class PersonajeMapa {
+/**
+ * PersonajeMapa gestiona la lógica física, posicional y el sprite animado del
+ * protagonista dentro del mapa bidimensional. Mantiene sus coordenadas absolutas
+ * respecto al mundo y procesa su movimiento filtrándolo por el sistema de colisiones.
+ */public class PersonajeMapa {
 
     //posición en coordenadas de mundo
     private float mundoX;
     private float mundoY;
-    private final float velocidadMax;
+    private final float velocidadMax; //factor de desplazamiento por frame
 
     private final AnimacionPersonaje animacionPJ;
 
     private final int ANCHO_PERSONAJE = 150;
 
+    /**
+     * Constructor: Determina la hoja de sprites (Spritesheet) adecuada según las estadísticas
+     * del Jugador e inicializa su posición física inicial en el mapa.
+     */
     public PersonajeMapa(Context contexto, Jugador jugador, float xInicial, float yInicial) {
         this.mundoX = xInicial;
         this.mundoY = yInicial;
@@ -60,7 +67,15 @@ public class PersonajeMapa {
 
     }
 
-    //actualizar la posición en coordenadas del mundo
+    /**
+     * Actualiza la posición física del personaje aplicando las fuerzas de entrada (dx, dy),
+     * limitando los márgenes del mundo (Clamping) y resolviendo colisiones por ejes separados.
+     * * @param dx Dirección horizontal del input (Rango entre -1.0 y 1.0)
+     * @param dy Dirección vertical del input (Rango entre -1.0 y 1.0)
+     * @param anchoMundo Límite horizontal máximo del mapa actual en píxeles
+     * @param altoMundo Límite vertical máximo del mapa actual en píxeles
+     * @param colisiones Instancia de la matriz de baldosas transitables/sólidas
+     */
     public void actualizar(float dx, float dy, float anchoMundo, float altoMundo, MapaColisiones colisiones) {
 
         animacionPJ.actualizar(dx, dy);

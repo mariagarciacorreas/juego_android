@@ -9,6 +9,12 @@ import android.view.SurfaceView;
 
 import com.riberadeltajo.proyectoparlamon.escenas.EscenaInicio;
 
+/**
+ * La clase Juego es la vista principal (Viewport) donde se dibuja el videojuego.
+ * Al heredar de SurfaceView, proporciona un lienzo dedicado para renderizar de forma
+ * asíncrona en un hilo secundario sin bloquear la interfaz de usuario nativa de Android.
+ * Implementa SurfaceHolder.Callback para reaccionar al ciclo de vida de la superficie física.
+ */
 public class Juego extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder holder;

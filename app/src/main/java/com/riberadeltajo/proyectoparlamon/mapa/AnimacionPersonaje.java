@@ -20,6 +20,14 @@ fila 4 - ↑ - norte (mirando hacia arriba)
             fila 6 - → - este (mirando hacia la derecha)
             fila 7 - ↘ - sur-este (mirando hacia abajo a la derecha)
  */
+
+/**
+ * AnimacionPersonaje gestiona el recorte y renderizado de los fotogramas (frames)
+ * de la hoja de sprites (Spritesheet) del protagonista.
+ * Convierte el vector analógico de movimiento (dx, dy) en ángulos de brújula para
+ * determinar la dirección visual y aplica un efecto espejo por software para cubrir
+ * las 8 direcciones del espacio usando un recurso gráfico de solo 5 filas.
+ */
 public class AnimacionPersonaje {
 
     private static final int COLUMNAS = 5;
@@ -55,6 +63,7 @@ public class AnimacionPersonaje {
     //dx y dy son vector de movimiento del personaje
     //en dx=0 y dy=0 el pj no se mueve y se conjela en el frame
     public void actualizar(float dx, float dy) {
+        // Tolerancia de zona muerta (0.05f) para filtrar micro-desplazamientos involuntarios o ruidos del stick
         boolean moviendose = Math.abs(dx) > 0.05f || Math.abs(dy) > 0.05f;
         if (moviendose) {
             //determinar fila según dirección dominante
@@ -73,7 +82,15 @@ public class AnimacionPersonaje {
         }
     }
 
+    /**
+     * Renderiza el frame recortado en las coordenadas de pantalla, aplicando la transformación espejo si es requerida.
+     * * @param canvas Lienzo de dibujo de la GPU.
+     * @param paint Pincel de renderizado.
+     * @param pantallaX Coordenada X local de pantalla filtrada por la Cámara.
+     * @param pantallaY Coordenada Y local de pantalla filtrada por la Cámara.
+     */
     public void dibujar(Canvas canvas, Paint paint, float pantallaX, float pantallaY) {
+        // Rectángulo Origen (SrcRect): Coordenadas de los píxeles internos que queremos recortar del Spritesheet
         Rect origen = new Rect(
                 columnaActual * anchoFrame,
                 filaActual * altoFrame,
@@ -81,6 +98,7 @@ public class AnimacionPersonaje {
                 filaActual * altoFrame + altoFrame
         );
 
+        // Rectángulo Destino (DstRect): Coordenadas de la porción física de la pantalla donde se escalará y pintará el recorte
         Rect destino = new Rect(
                 (int) pantallaX,
                 (int) pantallaY,

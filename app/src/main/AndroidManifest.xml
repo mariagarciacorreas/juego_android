@@ -16,18 +16,19 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ActividadJuego"
-            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|density"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="false"
-            android:resizeableActivity="false"
-            android:screenOrientation="landscape"> <!-- Soporte de notch para Huawei / Xiaomi y otros fabricantes -->
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
-        </activity>
+            android:resizeableActivity="true"/>
+
+
     </application>
+
 </manifest>

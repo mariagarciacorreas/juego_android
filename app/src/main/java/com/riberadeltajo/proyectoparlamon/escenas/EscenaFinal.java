@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.riberadeltajo.proyectoparlamon.dialogos.DialogosFin;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 /**
@@ -29,32 +30,14 @@ public class EscenaFinal implements Escena {
     private float tiempoPulsacion = 0f;
 
     // Textos según resultado
-    private final String[] lineasVictoria = {
-            "¡¡CIBER FRANCO DERROTADO!!",
-            "",
-            "La Constitución ha sido recuperada.",
-            "Los derechos del pueblo",
-            "vuelven a estar protegidos.",
-            "",
-            "Tú lo has hecho posible, héroe.",
-            "Ciudad Memópolis te lo agradece."
-    };
-
-    private final String[] lineasDerrota = {
-            "HAS CAÍDO...",
-            "",
-            "Ciber Franco ríe sobre tu derrota.",
-            "La Constitución permanece",
-            "bajo su control digital.",
-            "",
-            "Pero la historia no ha terminado.",
-            "El pueblo seguirá luchando."
-    };
+    private DialogosFin dialogosFin;
 
     public EscenaFinal(Context context, GestorEscenas gestorEscenas, boolean victoria) {
         this.context       = context;
         this.gestorEscenas = gestorEscenas;
         this.victoria      = victoria;
+
+        dialogosFin = new DialogosFin();
 
         paintTitulo = new Paint();
         paintTitulo.setTextSize(60);
@@ -103,7 +86,7 @@ public class EscenaFinal implements Escena {
         paintSubtitulo.setAlpha(a);
         paintPista.setAlpha(a);
 
-        String[] lineas = victoria ? lineasVictoria : lineasDerrota;
+        String[] lineas = victoria ? dialogosFin.getLineasVictoria() : dialogosFin.getLineasDerrota();
         float lineH = paintSubtitulo.getTextSize() + 16;
 
         // Calcular bloque total centrado verticalmente

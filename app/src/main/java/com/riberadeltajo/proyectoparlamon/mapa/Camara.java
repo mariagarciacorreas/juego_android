@@ -13,6 +13,13 @@ package com.riberadeltajo.proyectoparlamon.mapa;
 │   └──────────────────────────┘      │
 └─────────────────────────────────────┘
  */
+
+/**
+ * La clase Camara actúa como una ventana o visor deslizante sobre el mundo del juego.
+ * Determina qué sección del mapa infinito se renderiza en la pantalla física.
+ * Implementa una "zona muerta" central (donde el personaje se mueve libremente sin desplazar la pantalla)
+ * y un algoritmo de interpolación lineal (LERP) para lograr un desplazamiento fluido.
+ */
 public class Camara {
 
     //situación inicial de la camara (esquina superior izqueirda del mundo visible
@@ -49,7 +56,12 @@ public class Camara {
         this.margenH = anchoPantalla * 0.30f;
     }
 
-    //actualizar la cámara en cada frame según la posición del personaje
+    /**
+     * Sincroniza la posición de la cámara evaluando si el personaje ha desbordado la zona muerta
+     * y suaviza la transición hacia las nuevas coordenadas.
+     * @param personajeX Coordenada X absoluta del personaje en el mundo.
+     * @param personajeY Coordenada Y absoluta del personaje en el mundo.
+     */
     public void actualizar(float personajeX, float personajeY){
         //posición del personaje relativa a la pantalla
         float px = personajeX - camX;
@@ -62,10 +74,12 @@ public class Camara {
         if (py > altoPantalla  - margenV) targetY = personajeY - (altoPantalla  - margenV);
 
         //limitar target a los bordes del mundo para que la camara no sagla del mapa
+        // Evita de forma estricta que el 'target' apunte fuera de los límites del mapa,
+        // impidiendo que el jugador vea el vacío negro exterior.
         targetX = clamp(targetX, 0, anchoMundo - anchoPantalla);
         targetY = clamp(targetY, 0, altoMundo - altoPantalla);
 
-        //lerp hacia el target
+        // Suavizado por interpolación lineal del movimiento (lerp) hacia el target
         camX += (targetX - camX) * LERP;
         camY += (targetY - camY) * LERP;
     }
@@ -106,6 +120,9 @@ public class Camara {
         targetY = camY;
     }
 
+    /**
+     * Restringe un valor numérico flotante entre un mínimo y un máximo de seguridad.
+     */
     private static float clamp(float valor, float min, float max) {
         return Math.max(min, Math.min(max, valor));
     }

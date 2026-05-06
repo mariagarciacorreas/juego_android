@@ -11,11 +11,10 @@ import android.media.MediaPlayer;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.dialogos.EscritorTexto;
-import com.riberadeltajo.proyectoparlamon.dialogos.GestorDialogos;
+import com.riberadeltajo.proyectoparlamon.dialogos.DialogosInicio;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class EscenaInicio implements Escena{
@@ -24,7 +23,7 @@ public class EscenaInicio implements Escena{
     private GestorEscenas gestorEscenas;
     private EscritorTexto escritor;
 
-    //tres fragmentos de texto (o, 1, 2)
+    //tres fragmentos de texto (0, 1, 2)
     private int pantallaDialogoActual = 0;
 
     private float escalaPista = 1f;
@@ -36,7 +35,7 @@ public class EscenaInicio implements Escena{
     private boolean mostrarCiberFrank = false;
     private boolean ocultandoCiberFrank = false;
 
-    private GestorDialogos gestorDialogos = new GestorDialogos();
+    private DialogosInicio gestorDialogos = new DialogosInicio();
     private final List<List<String>> dialogosLore = gestorDialogos.getDialogosLore();
 
 

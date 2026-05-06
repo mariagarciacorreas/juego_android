@@ -303,7 +303,7 @@ public class EscenaCombate implements Escena {
 
         // ── Sprite enemigo (izquierda) ────────────────────────────────────
         // Acercado al jugador respecto a la posición anterior (0.06 → 0.18)
-        float exEnemigo = w * 0.18f + shakeEnemigo;
+        float exEnemigo = w * 0.25f + shakeEnemigo;
         float eyEnemigo = ysuelo - spriteEnemigo.getHeight();
 
         if (enemigo.getFase() == Jefe.Fase.FASE_2) {

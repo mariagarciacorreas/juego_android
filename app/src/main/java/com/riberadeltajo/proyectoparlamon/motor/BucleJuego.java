@@ -27,12 +27,6 @@ public class BucleJuego extends Thread {
     BucleJuego(SurfaceHolder sh, Juego s){
         juego=s;
         surfaceHolder=sh;
-
-        //Obtener Dimensiones del Canvas
-//        Canvas c=sh.lockCanvas();
-//        maxX = c.getWidth();
-//        maxY = c.getHeight();
-//        sh.unlockCanvasAndPost(c);
     }
 
     @Override
@@ -40,11 +34,10 @@ public class BucleJuego extends Thread {
         Canvas canvas;
         Log.d(TAG, "Comienza el game loop");
 
-
-        long tiempoComienzo;		// Tiempo en el que el ciclo comenzó
-        long tiempoDiferencia;		// Tiempo que duró el ciclo
-        int tiempoDormir;		// Tiempo que el thread debe dormir (<0 si vamos mal de tiempo)
-        int framesASaltar;	// número de frames saltados
+        long tiempoComienzo; // Tiempo en el que el ciclo comenzó
+        long tiempoDiferencia; // Tiempo que duró el ciclo
+        int tiempoDormir; // Tiempo que el thread debe dormir (<0 si vamos mal de tiempo)
+        int framesASaltar; // número de frames saltados
 
         tiempoDormir = 0;
 

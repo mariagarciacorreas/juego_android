@@ -23,8 +23,16 @@ import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
+
+/**
+ * Gestión del mundo abierto del juego (Ciudad Memópolis)
+ *.
+ * Controla el renderizado del mapa escalado, colisiones, movimiento del personaje,
+ * comportamiento de la cámara y los triggers de las zonas de peligro (Congreso)
+ */
 public class EscenaMapa implements Escena {
 
+    //Booleano que controla la activación de elementos de debug dibujados en pantalla
     private static final boolean DEBUG_ZONAS = true;
 
     // dependencias
@@ -36,10 +44,9 @@ public class EscenaMapa implements Escena {
     private static final float ZOOM_FACTOR = 2.0f;
 
     // zona de encuentro con el final boss (coordenadas de mundo ESCALADO)
-//    private static final float ZONA_MUNDO_X = 1684f;
-//    private static final float ZONA_MUNDO_Y = 1440f;
-    private static final float RADIO_ZONA = 120f;
+    private static final float RADIO_ZONA = 100f;
 
+    //coordenadas dinámicas para la zona del final boss
     private float zonaEncuentroX = 0f;
     private float zonaEncuentroY = 0f;
 
@@ -86,11 +93,18 @@ public class EscenaMapa implements Escena {
     private final MediaPlayer mpCongreso;
     private final MediaPlayer mpBase;
 
+    /**
+     * Constructor principal. Configura los pinceles estéticos y la música de fondo.
+     * @param context
+     * @param gestorEscenas
+     * @param jugador
+     */
     public EscenaMapa(Context context, GestorEscenas gestorEscenas, Jugador jugador) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
         this.jugador = jugador;
 
+        //detiene la música remanente del gestor global
         SonidoManager.stop();
 
         paintHudTexto = new Paint();
@@ -137,10 +151,11 @@ public class EscenaMapa implements Escena {
         paintBotonTexto.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
         paintBotonTexto.setTextAlign(Paint.Align.CENTER);
 
+        //configuración de audio
         mpCongreso = MediaPlayer.create(context, R.raw.ep2_congreso);
         mpCongreso.setOnCompletionListener(mp -> mp.seekTo(0));
         mpBase = MediaPlayer.create(context, R.raw.ep2_base);
-        mpBase.start();
+        mpBase.start(); //iniciar música
     }
 
     @Override
@@ -148,8 +163,10 @@ public class EscenaMapa implements Escena {
         if (!inicializado) return;
 
         gestorHUD.actualizar();
+        //congelar escena si el juego está en pausa
         if (gestorHUD.isPausado()) return;
 
+        //actualizar posición del jugador pasándole deltas de dirección y matriz de colisiones
         personaje.actualizar(
                 gestorControles.getDx(),
                 gestorControles.getDy(),
@@ -158,7 +175,10 @@ public class EscenaMapa implements Escena {
                 mapaColisiones
         );
 
+        //desplaza el objetivo de la cámara para centrarse en la posición del pj
         camara.actualizar(personaje.getMundoX(), personaje.getMundoY());
+
+        //comprobar si el pj ha entrado en zona de combate
         comprobarZonaEncuentro();
     }
 
@@ -166,6 +186,7 @@ public class EscenaMapa implements Escena {
     public void renderizar(Canvas canvas) {
         if (canvas == null) return;
 
+        //lanzar configuración inicial del canvas
         inicializacionDiferida(canvas);
 
         canvas.drawColor(Color.BLACK);
@@ -182,8 +203,8 @@ public class EscenaMapa implements Escena {
         }
 
         // cartel congreso
-        float cartelX = camara.mundoAPantallaX(CONGRESO_MUNDO_X);
-        float cartelY = camara.mundoAPantallaY(CONGRESO_MUNDO_Y);
+        float cartelX = camara.mundoAPantallaX(zonaEncuentroX);
+        float cartelY = camara.mundoAPantallaY(zonaEncuentroY);
         if (cartelX > -200 && cartelX < anchoPantalla + 200
                 && cartelY > -100 && cartelY < altoPantalla + 100) {
             dibujarCartel(canvas, cartelX, cartelY);
@@ -205,21 +226,26 @@ public class EscenaMapa implements Escena {
         canvas.drawText("⚠ Encuentra a Ciber Franco", 50, 50, paintHudTexto);
 
 
-
+        //controles de movimiento ocultos si el juego está en pausa
         if (!gestorHUD.isPausado()) {
             gestorControles.dibujar(canvas);
         }
 
+        //ventana emergente
         if (mostrarOverlayCongreso) {
             dibujarOverlayCongreso(canvas);
         }
 
+        //HUD en la parta superior (botón pausa y ajustes)
         gestorHUD.dibujar(canvas);
     }
 
     @Override
     public void onTouch(float x, float y) { }
 
+    /**
+     * Captura y procesa todos los eventos de interacción multitáctil de Android.
+     */
     @Override
     public void onTouchEvent(MotionEvent event) {
         if (!inicializado) return;
@@ -230,11 +256,13 @@ public class EscenaMapa implements Escena {
             float tx = event.getX(idx);
             float ty = event.getY(idx);
 
+            // Gestión de entrada específica cuando el cuadro de diálogo del Congreso está activo
             if (mostrarOverlayCongreso) {
                 float bw = 300f, bh = 90f;
                 float bx = anchoPantalla / 2f - bw / 2f;
                 float by = altoPantalla / 2f + 120f;
 
+                // Definición del área reactiva (Bounding Box) aumentada para el botón de "ENTRAR"
                 RectF zonaClick = new RectF(
                         bx - 30f,
                         by - 30f,
@@ -245,12 +273,13 @@ public class EscenaMapa implements Escena {
                 if (zonaClick.contains(tx, ty)) {
                     Log.d("BOTON", "CLICK ENTRAR DETECTADO");
                     mostrarOverlayCongreso = false;
-                    gestorControles.resetearControles();
+                    gestorControles.resetearControles(); // Evita que el personaje siga moviéndose por inercia
 
                     if (mpBase != null && mpBase.isPlaying()) {
                         mpBase.stop();
                     }
 
+                    //saltar a la escena de diálogos pre-combate
                     gestorEscenas.cambiarEscena(
                             new EscenaDialogoCombate(
                                     context,
@@ -266,11 +295,16 @@ public class EscenaMapa implements Escena {
             if (gestorHUD.onTouch(tx, ty)) return;
         }
 
+        // Si el juego no está en pausa, redirige los inputs táctiles analógicos al D-Pad
         if (!gestorHUD.isPausado()) {
             gestorControles.procesarEvento(event);
         }
     }
 
+    /**
+     * Inicialización diferida. Se ejecuta una única vez en el primer frame de renderizado.
+     * Garantiza que conocemos las dimensiones exactas físicas del Canvas antes de crear el mundo.
+     */
     private void inicializacionDiferida(Canvas canvas) {
         if (inicializado) return;
 
@@ -296,8 +330,8 @@ public class EscenaMapa implements Escena {
         mapaEscalado = Bitmap.createScaledBitmap(mapaOriginal, anchoEscalado, altoEscalado, true);
         mapaOriginal.recycle();
 
-        zonaEncuentroX = mapaEscalado.getWidth() * 0.8008f;
-        zonaEncuentroY = mapaEscalado.getHeight() * 0.2637f;
+        zonaEncuentroX = mapaEscalado.getWidth() * 0.8200f;
+        zonaEncuentroY = mapaEscalado.getHeight() * 0.2420f;
 
         // 5) Crear mapa de colisiones con EL MISMO zoom
         mapaColisiones = new MapaColisiones(context, zoom);
@@ -306,9 +340,6 @@ public class EscenaMapa implements Escena {
         camara = new Camara(anchoPantalla, altoPantalla, anchoEscalado, altoEscalado);
 
         // 7) Posición inicial del personaje (coordenadas de mundo ESCALADO)
-//        float inicioX = 1590f;
-//        float inicioY = 1586f;
-
         float centroX = mapaEscalado.getWidth() * 0.5726f;
         float centroY = mapaEscalado.getHeight() * 0.7461f;
 
@@ -318,6 +349,7 @@ public class EscenaMapa implements Escena {
         personaje = new PersonajeMapa(context, jugador, inicioX, inicioY);
         camara.centrarEn(inicioX, inicioY);
 
+        // Inicializa controles de UI escalando los píxeles según la densidad de la pantalla (DPI)
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         gestorControles = new GestorControles(context, anchoPantalla, altoPantalla, dm.density);
         gestorHUD = new GestorHUD(anchoPantalla, altoPantalla, dm.density, gestorControles);
@@ -327,9 +359,6 @@ public class EscenaMapa implements Escena {
 
     private void comprobarZonaEncuentro() {
         // zona Ciber Franco
-//        float dx = personaje.getMundoX() - ZONA_MUNDO_X;
-//        float dy = personaje.getMundoY() - ZONA_MUNDO_Y;
-
         float dx = personaje.getMundoX() - zonaEncuentroX;
         float dy = personaje.getMundoY() - zonaEncuentroY;
         if (Math.sqrt(dx * dx + dy * dy) < RADIO_ZONA) {
@@ -348,7 +377,7 @@ public class EscenaMapa implements Escena {
         if (!mostrarOverlayCongreso) {
             float dcx = personaje.getMundoX() - CONGRESO_MUNDO_X;
             float dcy = personaje.getMundoY() - CONGRESO_MUNDO_Y;
-            if (Math.sqrt(dcx * dcx + dcy * dcy) < RADIO_CONGRESO) {
+            if (Math.sqrt(dcx * dcx + dcy * dcy) < RADIO_ZONA) {
                 if (mpCongreso != null) {
                     mpCongreso.start();
                 }
@@ -358,6 +387,9 @@ public class EscenaMapa implements Escena {
         }
     }
 
+    /**
+     * Dibuja una caja informativa (tooltip) flotando justo por encima del edificio en coordenadas del mundo.
+     */
     private void dibujarCartel(Canvas canvas, float px, float py) {
         float w = 400f;
         float h = 80f;
@@ -376,6 +408,9 @@ public class EscenaMapa implements Escena {
         canvas.drawText("⚠ PELIGRO DICTADOR", px, by + 50, paintCartelTexto);
     }
 
+    /**
+     * Dibuja un fondo modal oscuro traslúcido con texto de advertencia crítico y un botón central.
+     */
     private void dibujarOverlayCongreso(Canvas canvas) {
         float w = anchoPantalla, h = altoPantalla;
 
@@ -391,6 +426,7 @@ public class EscenaMapa implements Escena {
         paintOverlayTexto.setTextSize(48f);
         paintOverlayTexto.setColor(Color.rgb(255, 235, 59));
 
+        // Caja y dibujo del botón de confirmación
         float bw = 300f, bh = 90f;
         float bx = w / 2f - bw / 2f, by = h / 2f + 120f;
 

@@ -11,23 +11,31 @@ import android.graphics.Typeface;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
-import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
+/**
+ * Escena de Selección de Personaje.
+ * Permite al jugador elegir entre tres campeones (Guerrero, Mago, Elfo)
+ * representados visualmente mediante "pastillas" interactivas.
+ */
 public class EscenaSeleccionPersonaje implements Escena{
 
+    //dependencias
     private Context context;
     private GestorEscenas gestorEscenas;
     private Paint paintTexto;
     private Paint paintPista;
     private Paint paintPastilla;
 
+    //áreas de interacción
     private RectF pastillaPedro;
     private RectF pastillaFeijoo;
     private RectF pastillaAbascal;
 
+    //animación y efectos visuales
     private float escalaPista = 1f;
     private float tiempoPulsacion = 0f;
 
+    //recursos gráficos
     private Bitmap imgGuerrero;
     private Bitmap imgMago;
     private Bitmap imgElfo;
@@ -46,7 +54,7 @@ public class EscenaSeleccionPersonaje implements Escena{
         paintTexto.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         paintTexto.setAntiAlias(false);
 
-        //pista
+        //pista visual (texto que late)
         paintPista = new Paint();
         paintPista.setColor(Color.rgb(255, 235, 59)); // FFEB3B
         paintPista.setTextSize(35);
@@ -55,7 +63,6 @@ public class EscenaSeleccionPersonaje implements Escena{
 
         //pastilla
         paintPastilla = new Paint();
-        //paintPastilla.setColor(Color.rgb(255, 235, 59)); // FFEB3B
         paintPastilla.setColor(Color.DKGRAY);
         paintPastilla.setStyle(Paint.Style.FILL);
 
@@ -66,14 +73,21 @@ public class EscenaSeleccionPersonaje implements Escena{
 
     }
 
+    /**
+     * Actualiza la lógica de la animación de "latido".
+     */
     @Override
     public void actualizar() {
-
+        // Incrementa el tiempo para oscilar el tamaño del texto de ayuda
         tiempoPulsacion += 0.05f; //velocidad
+        // Calcula la escala usando la función seno para un movimiento suave (oscila entre ~0.92 y ~1.08)
         escalaPista = 1f + 0.08f * (float)Math.sin(tiempoPulsacion);
 
     }
 
+    /**
+     * Dibuja la interfaz de selección, calculando posiciones relativas al tamaño del Canvas.
+     */
     @Override
     public void renderizar(Canvas canvas) {
 
@@ -84,9 +98,11 @@ public class EscenaSeleccionPersonaje implements Escena{
         float w = canvas.getWidth();
         float h = canvas.getHeight();
 
+        //maquetación proporcional
         float margenLateral = 150;
         float separacion = 80;
 
+        //dividir el ancho disponible entre 3 para crear columnas iguales
         float anchoPastilla = (w - margenLateral*2 - separacion*2) / 3f;
         float altoPastilla = h * 0.8f;
 
@@ -104,8 +120,7 @@ public class EscenaSeleccionPersonaje implements Escena{
         canvas.drawRoundRect(pastillaAbascal, 30, 30, paintPastilla);
 
 
-        //ancho máximo permitido (65% de la pastilla)
-        //float anchoImg = anchoPastilla * 0.65f;
+        //ancho máximo permitido (70% de la pastilla) - autoescalado
         float anchoImg = anchoPastilla * 0.70f;
 
         //GUERRERO
@@ -147,14 +162,6 @@ public class EscenaSeleccionPersonaje implements Escena{
             canvas.drawBitmap(scaled, x, y, null);
         }
 
-
-
-
-        //texto
-//        canvas.drawText("Pedro Sánchez", pastillaPedro.left + 20, pastillaPedro.top + 80, paintTexto);
-//        canvas.drawText("Feijóo", pastillaFeijoo.left + 20, pastillaFeijoo.top + 80, paintTexto);
-//        canvas.drawText("Abascal", pastillaAbascal.left + 20, pastillaAbascal.top + 80, paintTexto);
-
         //margen inferior
         float margen = 60;
 
@@ -183,6 +190,9 @@ public class EscenaSeleccionPersonaje implements Escena{
         canvas.restore();
     }
 
+    /**
+     * Maneja la selección del personaje detectando en qué área ha pulsado el usuario.
+     */
     @Override
     public void onTouch(float x, float y) {
 

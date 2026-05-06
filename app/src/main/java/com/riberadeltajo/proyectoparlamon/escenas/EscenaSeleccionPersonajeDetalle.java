@@ -13,6 +13,11 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
+/**
+ * EscenaSeleccionPersonajeDetalle muestra la vista pormenorizada del héroe seleccionado.
+ * Renderiza el sprite correspondiente a la clase elegida y ofrece un botón animado
+ * para confirmar la selección e instanciar al Jugador en el mapa principal.
+ */
 public class EscenaSeleccionPersonajeDetalle implements Escena{
 
     private Context context;

@@ -6,18 +6,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-/*
-Botón táctil que detecta ser tocado en pantalla
+/**
+ * Control representa un botón interactivo individual de la interfaz gráfica.
+ * Es utilizado de forma modular por el GestorControles para construir el D-Pad (Cruceta),
+ * gestionando de forma autónoma su propio estado físico de pulsación, textura y colisión.
  */
 public class Control {
 
     public boolean pulsado = false;
     public float x, y;
     private Bitmap imagen;
-
-    //tamaño fijo flechas
-    //private final int TAMANIO_PX = 70;
-
     private final Paint paintFondo;
 
     public Control(Context c, float x, float y, int recurso, int tamanioPx) {

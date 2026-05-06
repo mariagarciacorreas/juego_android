@@ -3,9 +3,12 @@ package com.riberadeltajo.proyectoparlamon.dialogos;
 import java.util.Arrays;
 import java.util.List;
 
-public class GestorDialogos {
+/**
+ * Clase que centraliza y almacena textos de la parte introductoria del juego
+ */
+public class DialogosInicio {
 
-    public GestorDialogos() {
+    public DialogosInicio() {
     }
 
     private final List<List<String>> dialogosLore = Arrays.asList(
