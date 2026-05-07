@@ -21,9 +21,9 @@ public class SonidoManager {
      * Si la música ya se está reproduciendo, ignora la petición para evitar solapamientos acústicos.
      * * @param context El contexto de la aplicación o actividad necesario para acceder a los recursos raw.
      */
-    public static void playBase(Context context) {
+    public static void reproducirMusica(Context context, int resId ) {
         if (mp == null) {
-            mp = MediaPlayer.create(context, R.raw.ep1_base);
+            mp = MediaPlayer.create(context, resId);
             mp.setLooping(true);
             mp.start();
         }
@@ -34,7 +34,7 @@ public class SonidoManager {
      * Detiene la reproducción actual de golpe y libera de forma estricta todos los
      * recursos de hardware asignados por el sistema operativo Android.
      */
-    public static void stop() {
+    public static void detenerMusica() {
         if (mp != null) {
             mp.stop();
             mp.release();

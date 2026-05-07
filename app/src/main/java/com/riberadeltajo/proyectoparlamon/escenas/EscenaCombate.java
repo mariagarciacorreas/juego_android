@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.combate.Ataques;
@@ -15,6 +16,7 @@ import com.riberadeltajo.proyectoparlamon.combate.Jefe;
 import com.riberadeltajo.proyectoparlamon.combate.Combate;
 import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
+import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
 import java.util.List;
 
@@ -79,6 +81,7 @@ public class EscenaCombate implements Escena {
     // Último estado del gestor (para detectar cambios)
     private Combate.Estado estadoAnterior = Combate.Estado.ESPERAR_JUGADOR;
 
+    private MediaPlayer mpCombate;
     public EscenaCombate(Context context, GestorEscenas gestorEscenas, Jugador jugador, Jefe enemigo) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
@@ -144,6 +147,9 @@ public class EscenaCombate implements Escena {
 
         Bitmap fondoPeleaJefe = BitmapFactory.decodeResource(context.getResources(), R.drawable.fondo_congreso_v2);
         fondoJefe = fondoPeleaJefe;
+
+        SonidoManager.detenerMusica();
+        SonidoManager.reproducirMusica(context, R.raw.franco_fight_ost);
     }
 
     private void cargarSpriteJugador() {
@@ -533,4 +539,9 @@ public class EscenaCombate implements Escena {
         fondoJefe = Bitmap.createBitmap(escalado, offsetX, offsetY, screenW, screenH);
         escalado.recycle();
     }
+
+
+
+
+
 }

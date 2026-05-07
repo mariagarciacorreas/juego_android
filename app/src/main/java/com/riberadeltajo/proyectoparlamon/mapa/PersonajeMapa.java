@@ -21,9 +21,7 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
     private float mundoY;
     private final float velocidadMax; //factor de desplazamiento por frame
 
-    private final AnimacionPersonaje animacionPJ;
-
-    private final int ANCHO_PERSONAJE = 150;
+    private final Bitmap sprite;
 
     /**
      * Constructor: Determina la hoja de sprites (Spritesheet) adecuada según las estadísticas
@@ -40,17 +38,17 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
 
         switch (jugador.getClase().toLowerCase()){
             case "guerrero":
-                recurso = R.drawable.sprite_guerrero;
+                recurso = R.drawable.sprite_guerrero_ejemplo;
                 break;
             case "mago":
-                recurso = R.drawable.sprite_mago;
+                recurso = R.drawable.sprite_mago_ejemplo;
                 break;
             case "elfo":
-                recurso = R.drawable.sprite_elfo;
+                recurso = R.drawable.sprite_elfo_ejemplo;
                 break;
             default:
                 Log.e("PERSONAJE", "Clase desconocida: " + jugador.getClase());
-                recurso = R.drawable.sprite_guerrero;
+                recurso = R.drawable.sprite_guerrero_ejemplo;
                 break;
         }
 
@@ -60,11 +58,14 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
         if (original == null) {
             Log.e("PERSONAJE", "Bitmap null para recurso: " + recurso);
             original = BitmapFactory.decodeResource(contexto.getResources(),
-                    R.drawable.sprite_elfo); // fallback seguro
+                    R.drawable.sprite_elfo_ejemplo); // fallback seguro
         }
 
-        animacionPJ = new AnimacionPersonaje(original, ANCHO_PERSONAJE);
 
+        int ancho = 120;
+        int alto  = (int)(original.getHeight() * (ancho / (float) original.getWidth()));
+        sprite = Bitmap.createScaledBitmap(original, ancho, alto, false);
+        original.recycle();
     }
 
     /**
@@ -78,20 +79,29 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
      */
     public void actualizar(float dx, float dy, float anchoMundo, float altoMundo, MapaColisiones colisiones) {
 
-        animacionPJ.actualizar(dx, dy);
+        float nuevaX = mundoX + dx * velocidadMax;
+        float nuevaY = mundoY + dy * velocidadMax;
+//        mundoX += dx * velocidadMax;
+//        mundoY += dy * velocidadMax;
 
-        float nuevaX = Math.max(0, Math.min(anchoMundo - animacionPJ.getAnchoPJ(), mundoX + dx * velocidadMax));
-        float nuevaY = Math.max(0, Math.min(altoMundo  - animacionPJ.getAltoPJ(),  mundoY + dy * velocidadMax));
+        //limitar los bordes del mundo
+        nuevaX = Math.max(0, Math.min(anchoMundo - sprite.getWidth(),  nuevaX));
+        nuevaY = Math.max(0, Math.min(altoMundo  - sprite.getHeight(), nuevaY));
 
-        if (colisiones.rectTransitable(nuevaX, mundoY, animacionPJ.getAnchoPJ(), animacionPJ.getAltoPJ()))
+        //comrpobar colisones
+        if (colisiones.rectTransitable(nuevaX, mundoY, sprite.getWidth(), sprite.getHeight())) {
             mundoX = nuevaX;
-        if (colisiones.rectTransitable(mundoX, nuevaY, animacionPJ.getAnchoPJ(), animacionPJ.getAltoPJ()))
+        }
+        if (colisiones.rectTransitable(mundoX, nuevaY, sprite.getWidth(), sprite.getHeight())) {
             mundoY = nuevaY;
+        }
     }
 
     //dibujar el personaje
     public void dibujar(Canvas canvas, Paint paint, Camara camara) {
-        animacionPJ.dibujar(canvas, paint, camara.mundoAPantallaX(mundoX), camara.mundoAPantallaY(mundoY));
+        float px = camara.mundoAPantallaX(mundoX);
+        float py = camara.mundoAPantallaY(mundoY);
+        canvas.drawBitmap(sprite, px, py, paint);
     }
 
     public float getMundoX() {
@@ -102,10 +112,10 @@ import com.riberadeltajo.proyectoparlamon.combate.Jugador;
     }
 
     public int getAncho() {
-        return animacionPJ.getAnchoPJ();
+        return sprite.getWidth();
     }
     public int getAlto()  {
-        return animacionPJ.getAltoPJ();
+        return sprite.getHeight();
     }
 
 

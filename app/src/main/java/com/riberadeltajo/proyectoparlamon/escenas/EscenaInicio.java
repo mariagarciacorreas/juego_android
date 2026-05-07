@@ -76,7 +76,7 @@ public class EscenaInicio implements Escena{
         cargarPantalla(0);
 
         //inicializar sonido
-        SonidoManager.playBase(context);
+        SonidoManager.reproducirMusica(context, R.raw.ep1_base);
     }
 
     private void cargarPantalla(int index){

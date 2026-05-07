@@ -61,7 +61,7 @@ public class AnimadorPantallaInicio {
      * * @param v Vista sobre la que se aplicará la transparencia.
      */
     public void animarFadeIn(View v){
-        AlphaAnimation fade = new AlphaAnimation(0f, 0f);
+        AlphaAnimation fade = new AlphaAnimation(0f, 1f);
         fade.setDuration(1000);
         v.startAnimation(fade);
     }
