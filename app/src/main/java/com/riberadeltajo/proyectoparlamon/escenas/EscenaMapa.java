@@ -41,7 +41,7 @@ public class EscenaMapa implements Escena {
     private final Jugador jugador;
 
     // zoom base (multiplicador sobre el mínimo para cubrir pantalla)
-    private static final float ZOOM_FACTOR = 2.0f;
+    private static final float ZOOM_FACTOR = 2.8f;
 
     // zona de encuentro con el final boss (coordenadas de mundo ESCALADO)
     private static final float RADIO_ZONA = 100f;
@@ -105,7 +105,7 @@ public class EscenaMapa implements Escena {
         this.jugador = jugador;
 
         //detiene la música remanente del gestor global
-        SonidoManager.stop();
+        SonidoManager.detenerMusica();
 
         paintHudTexto = new Paint();
         paintHudTexto.setColor(Color.WHITE);
