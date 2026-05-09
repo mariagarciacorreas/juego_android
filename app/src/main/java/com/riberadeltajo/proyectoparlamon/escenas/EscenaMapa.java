@@ -26,7 +26,7 @@ import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 public class EscenaMapa implements Escena {
 
     //Booleano que controla la activación de elementos de debug dibujados en pantalla
-    private static final boolean DEBUG_ZONAS = true;
+    private static final boolean DEBUG_ZONAS = false;
 
     // dependencias
     private final Context context;
@@ -199,8 +199,10 @@ public class EscenaMapa implements Escena {
         // personaje
         personaje.dibujar(canvas, paintSrpite, camara);
 
-        // debug coords
+        // Coordenadas para debug
+        /*
         Paint paintDebug = new Paint();
+
         paintDebug.setColor(Color.rgb(0, 255, 0));
         paintDebug.setTextSize(28f);
         paintDebug.setTypeface(Typeface.MONOSPACE);
@@ -208,6 +210,8 @@ public class EscenaMapa implements Escena {
         canvas.drawText("X: " + (int) personaje.getMundoX() + "  Y: " + (int) personaje.getMundoY(), 50, 100, paintDebug);
         canvas.drawText("dx=" + gestorControles.getDx(), 50, 140, paintDebug);
         canvas.drawText("dy=" + gestorControles.getDy(), 50, 180, paintDebug);
+
+        */
 
         canvas.drawText("⚠ Encuentra a Ciber Franco", 50, 50, paintHudTexto);
 

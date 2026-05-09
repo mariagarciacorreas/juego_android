@@ -46,7 +46,7 @@
         android:layout_height="44dp"
         android:layout_marginTop="148dp"
         android:fontFamily="monospace"
-        android:text="por y para el pueblo"
+        android:text="Por y para el pueblo"
         android:textAlignment="center"
         android:textColor="#FB0000"
         android:textSize="18sp"
