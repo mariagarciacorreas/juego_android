@@ -1,8 +1,6 @@
 package com.riberadeltajo.proyectoparlamon.dialogos;
 
-/**
- * Clase que guarda los textos de los diferentes finales de la batalla.
- */
+
 public class DialogosFin {
 
     private final String[] lineasVictoria = {

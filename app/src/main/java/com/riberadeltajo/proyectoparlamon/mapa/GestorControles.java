@@ -9,11 +9,7 @@ import com.riberadeltajo.proyectoparlamon.R;
 
 import java.util.Map;
 
-/**
- * GestorControles unifica la gestión de las entradas de usuario en dispositivos táctiles.
- * Implementa un sistema de ruteo multitáctil capaz de alternar dinámicamente entre un
- * Joystick analógico o una Cruceta de Flechas (D-Pad), abstrayendo los deltas de dirección (dx, dy).
- */
+
 public class GestorControles {
 
     // Esquema de controlo por defecto
@@ -31,10 +27,7 @@ public class GestorControles {
     private final Paint paintControl = new Paint();
 
 
-    /**
-     * Constructor: Calcula la posición ergonómica del pad (esquina inferior izquierda)
-     * basándose en la densidad de píxeles (DPI) para que el tamaño físico sea idéntico en cualquier dispositivo.
-     */
+
     public GestorControles(Context context, float anchoPAntalla, float altoPantalla, float densidadPantalla){
 
         //float btn = BTN_DP * densidadPantalla;
@@ -77,11 +70,7 @@ public class GestorControles {
 
     }
 
-    /**
-     * Procesador central (Filtro Multitáctil de Android):
-     * Descompone los eventos complejos empaquetados de Android y distribuye las coordenadas
-     * al componente de hardware virtual correspondiente.
-     */
+
     public void procesarEvento(MotionEvent event){
         // Extrae la acción pura (ignora el índice del dedo para operaciones globales)
         int accion = event.getActionMasked();
@@ -141,10 +130,6 @@ public class GestorControles {
     }
 
 
-    /**
-     * Calcula la componente horizontal unitaria ($dx$) del movimiento para el PersonajeMapa.
-     * @return Valor entre -1.0 (Izquierda), 0.0 (Neutro) y 1.0 (Derecha).
-     */
     public float getDx() {
         if (tipoControl == TipoControl.JOYSTICK && joystick.isActivo()) return joystick.getDx();
         if (tipoControl == TipoControl.FLECHAS) {
@@ -156,10 +141,6 @@ public class GestorControles {
         return 0f;
     }
 
-    /**
-     * Calcula la componente vertical unitaria ($dy$) del movimiento para el PersonajeMapa.
-     * @return Valor entre -1.0 (Arriba), 0.0 (Neutro) y 1.0 (Abajo).
-     */
     public float getDy() {
         if (tipoControl == TipoControl.JOYSTICK && joystick.isActivo()) return joystick.getDy();
         if (tipoControl == TipoControl.FLECHAS) {
@@ -173,9 +154,6 @@ public class GestorControles {
 
 
 
-    /**
-     * Renderiza en el Canvas únicamente el esquema de control que esté configurado como activo.
-     */
     public void dibujar(Canvas canvas){
         if (tipoControl == TipoControl.JOYSTICK)  {
             joystick.dibujar(canvas);
@@ -188,19 +166,13 @@ public class GestorControles {
         }
     }
 
-    /**
-     * Resetea por completo los inputs del hardware. Evita el molesto bug del "personaje fantasma"
-     * (cuando abres un menú de pausa mientras caminas y el personaje se queda moviéndose solo).
-     */
+
     public void resetearControles(){
         joystick.soltar(joystick.getPointerIdActivo());
         flechaArriba.pulsado = flechaAbajo.pulsado = flechaIzquierda.pulsado = flechaDerecha.pulsado = false;
         for (int i = 0; i < MAX_POINTERS; i++) asignacionFlechas[i] = null;
     }
 
-    /**
-     * Vincula el Pointer ID de un dedo específico a la flecha con la que está colisionando físicamente.
-     */
     private void asignarFlecha(int pid, float px, float py) {
         if (pid >= MAX_POINTERS) return;
         if (flechaArriba.dentro(px, py)) asignacionFlechas[pid] = flechaArriba;
@@ -210,17 +182,11 @@ public class GestorControles {
         else asignacionFlechas[pid] = null;
     }
 
-    /**
-     * Rompe la asociación del dedo liberado en la matriz de seguimiento.
-     */
     private void liberarFlecha(int pid) {
         if (pid < MAX_POINTERS) asignacionFlechas[pid] = null;
     }
 
-    /**
-     * Evalúa la matriz completa de dedos y actualiza el flag de renderizado e input de las flechas.
-     * Permite soportar la pulsación simultánea de dos flechas a la vez (p. ej. Arriba + Derecha = Diagonal).
-     */
+
     private void recalcularFlechas() {
         flechaArriba.pulsado = flechaAbajo.pulsado = flechaIzquierda.pulsado = flechaDerecha.pulsado = false;
         for (int i = 0; i < MAX_POINTERS; i++) {

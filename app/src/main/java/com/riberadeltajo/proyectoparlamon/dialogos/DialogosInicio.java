@@ -3,9 +3,7 @@ package com.riberadeltajo.proyectoparlamon.dialogos;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Clase que centraliza y almacena textos de la parte introductoria del juego
- */
+
 public class DialogosInicio {
 
     public DialogosInicio() {

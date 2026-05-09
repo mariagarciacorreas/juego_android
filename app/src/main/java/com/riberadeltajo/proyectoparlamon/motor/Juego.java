@@ -9,12 +9,6 @@ import android.view.SurfaceView;
 
 import com.riberadeltajo.proyectoparlamon.escenas.EscenaInicio;
 
-/**
- * La clase Juego es la vista principal (Viewport) donde se dibuja el videojuego.
- * Al heredar de SurfaceView, proporciona un lienzo dedicado para renderizar de forma
- * asíncrona en un hilo secundario sin bloquear la interfaz de usuario nativa de Android.
- * Implementa SurfaceHolder.Callback para reaccionar al ciclo de vida de la superficie física.
- */
 public class Juego extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder holder;
@@ -30,11 +24,7 @@ public class Juego extends SurfaceView implements SurfaceHolder.Callback {
         gestorEscenas.cambiarEscena(new EscenaInicio(context, gestorEscenas));
     }
 
-    /**
-     * Fuerza que la SurfaceView ocupe exactamente todo el espacio disponible.
-     * Sin esto, en algunos dispositivos con notch o barra de gestos la surface
-     * se queda corta y aparecen bandas negras en los bordes.
-     */
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width  = MeasureSpec.getSize(widthMeasureSpec);

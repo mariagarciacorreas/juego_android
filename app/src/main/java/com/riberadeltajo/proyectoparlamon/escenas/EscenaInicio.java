@@ -23,13 +23,11 @@ public class EscenaInicio implements Escena{
     private GestorEscenas gestorEscenas;
     private EscritorTexto escritor;
 
-    //tres fragmentos de texto (0, 1, 2)
     private int pantallaDialogoActual = 0;
 
     private float escalaPista = 1f;
     private float tiempoPulsacion = 0f;
 
-    //imagen Ciber Frank
     private Bitmap imgCiberFrank;
     private int alphaCiberFrank = 0;
     private boolean mostrarCiberFrank = false;
@@ -57,25 +55,21 @@ public class EscenaInicio implements Escena{
         paintTexto.setTypeface(Typeface.MONOSPACE);
         paintTexto.setAntiAlias(false);
 
-        //pintar pista
         paintPista = new Paint();
         paintPista.setColor(Color.GRAY);
         paintPista.setTextSize(35);
         paintPista.setTypeface(Typeface.MONOSPACE);
         paintPista.setAntiAlias(false);
 
-        //cargar imagen Ciber Frank y escalar
         Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.ciberfrank_intro);
         int anchoCiberFrank = 600; // px — ajusta a tu gusto
         int altoCiberFrank = (int)(original.getHeight() * (anchoCiberFrank / (float) original.getWidth()));
         imgCiberFrank = Bitmap.createScaledBitmap(original, anchoCiberFrank, altoCiberFrank, true);
         original.recycle();
 
-        //50 milisegundos enre letra y letra
         escritor = new EscritorTexto(50);
         cargarPantalla(0);
 
-        //inicializar sonido
         SonidoManager.reproducirMusica(context, R.raw.ep1_base);
     }
 
@@ -155,7 +149,6 @@ public class EscenaInicio implements Escena{
         //posición Y inicial del texto (encima de la pista)
         float textoY = pistaY - altoPista - 40 - alturaBloqueTexto; //separación 40px
 
-        //dibujar imagen Ciber Frank
         if(alphaCiberFrank > 0){
             Paint p = new Paint();
             p.setAlpha(alphaCiberFrank);

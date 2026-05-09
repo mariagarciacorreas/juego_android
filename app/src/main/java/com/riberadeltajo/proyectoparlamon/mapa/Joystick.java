@@ -4,12 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-/**
- * Joystick representa un pad analógico virtual circular en pantalla.
- * Proporciona un control de movimiento multidireccional fluido (360°) donde la velocidad
- * resultante del personaje es directamente proporcional a la distancia a la que el jugador
- * arrastra la palometa (el stick central) respecto a su base.
- */public class Joystick {
+public class Joystick {
     private final float centroX;
     private final float centroY;
     private final float radioBase;
@@ -22,19 +17,14 @@ import android.graphics.Paint;
     private float dx = 0f; // Factor de desplazamiento horizontal (Rango de -1.0 a 1.0)
     private float dy = 0f; // Factor de desplazamiento vertical (Rango de -1.0 a 1.0)
 
-    // Gesión del foco multitouch
     private boolean activo = false;
     private int pointerIdActivo = -1;
 
-    // Pinceles
     private final Paint paintBase;
     private final Paint paintBorde;
     private final Paint paintPalometa;
 
-    /**
-     * Constructor: Define la posición fija del pad en el HUD y calcula el tamaño proporcional
-     * de la palometa interna con una paleta translúcida Cyberpunk/Amarilla.
-     */
+
     public Joystick(float centroX, float centroY, float radioBase) {
         this.centroX = centroX;
         this.centroY = centroY;
@@ -61,13 +51,7 @@ import android.graphics.Paint;
         paintPalometa.setStyle(Paint.Style.FILL);
     }
 
-    /**
-     * Intenta capturar el control cuando un dedo toca la pantalla (ACTION_DOWN o ACTION_POINTER_DOWN).
-     * * @param pointerId ID del dedo que ha tocado la pantalla.
-     * @param px Coordenada X del toque.
-     * @param py Coordenada Y del toque.
-     * @return true si el toque ocurrió dentro de la base y el joystick se activó con éxito.
-     */
+
     public boolean intentarActivar(int pointerId, float px, float py) {
         if (activo || !dentroDelAreaBase(px, py)) return false;
         pointerIdActivo = pointerId;
@@ -76,19 +60,13 @@ import android.graphics.Paint;
         return true;
     }
 
-    /**
-     * Procesa el arrastre del dedo por la pantalla (ACTION_MOVE).
-     * * @param pointerId ID del dedo que se está moviendo.
-     */
+
     public void mover(int pointerId, float px, float py) {
         if (!activo || pointerId != pointerIdActivo) return;
         actualizar(px, py);
     }
 
-    /**
-     * Libera el control cuando el dedo se levanta de la pantalla (ACTION_UP o ACTION_POINTER_UP).
-     * * @param pointerId ID del dedo que se ha levantado.
-     */
+
     public void soltar(int pointerId) {
         if (pointerId != pointerIdActivo) return;
         activo = false;
@@ -112,11 +90,7 @@ import android.graphics.Paint;
     public boolean isActivo() { return activo; }
     public int getPointerIdActivo() { return pointerIdActivo; }
 
-    /**
-     * Trigonometría y álgebra vectorial de control.
-     * Calcula la posición restrictiva de la palometa y
-     * normaliza los deltas de dirección (dx, dy).
-     */
+
     private void actualizar(float px, float py) {
         // 1. Hallar los componentes cartesianos del vector de desplazamiento (Offsets relativos al centro)
         float ox = px - centroX;
@@ -148,9 +122,7 @@ import android.graphics.Paint;
 
     }
 
-    /**
-     * Valida si un punto inicial de pantalla colisiona con el área física circular de la base.
-     */
+
     private boolean dentroDelAreaBase(float px, float py) {
         float ox = px - centroX, oy = py - centroY;
         return Math.sqrt(ox * ox + oy * oy) <= radioBase;

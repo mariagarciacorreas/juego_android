@@ -3,10 +3,7 @@ package com.riberadeltajo.proyectoparlamon.combate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa al jugador durante el combate.
- * Recibe el nombre y clase elegidos en la pantalla de selección.
- */
+
 public class Jugador {
 
     private final String nombre;
@@ -36,17 +33,17 @@ public class Jugador {
                 ataques.add(new Ataques("Moción de censura",     150, "Elimina el turno del enemigo (daño extra)", 50, 15 ));
                 break;
             case "mago":
-                ataques.add(new Ataques("Hechizo del BOE",       200, "Invoca legislación vinculante", 40, 10 ));
+                ataques.add(new Ataques("Hechizo del BOE",       200, "Invoca legislación vinculante", 50, 10 ));
                 ataques.add(new Ataques("Decreto mágico",        40, "Emite un decreto que confunde al enemigo", 100, 20 ));
-                ataques.add(new Ataques("Bola de fuego fiscal",  50, "Un impuesto devastador en forma de bola de fuego", 100, 20 ));
-                ataques.add(new Ataques("Teletransporte al Senado", 70, "Desaparece y reaparece dando un golpe", 85, 15 ));
+                ataques.add(new Ataques("Bola de fuego fiscal",  60, "Un impuesto devastador en forma de bola de fuego", 100, 20 ));
+                ataques.add(new Ataques("Teletransporte al Senado", 90, "Desaparece y reaparece dando un golpe", 85, 15 ));
                 break;
             case "elfo":
             default:
                 ataques.add(new Ataques("Flecha del IRPF",60, "Una flecha precisa llena de impuestos", 90, 15));
                 ataques.add(new Ataques("Tiro con el acta",180, "Lanza el acta electoral al enemigo", 70, 5 ));
                 ataques.add(new Ataques("Sigilo élfico", 40, "Ataque furtivo desde las sombras", 90, 20 ));
-                ataques.add(new Ataques("Lluvia de proposiciones", 70, "Múltiples proposiciones no de ley", 100, 15 ));
+                ataques.add(new Ataques("Lluvia de proposiciones", 90, "Múltiples proposiciones no de ley", 100, 15 ));
                 break;
         }
     }

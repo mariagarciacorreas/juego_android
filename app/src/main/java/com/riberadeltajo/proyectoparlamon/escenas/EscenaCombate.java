@@ -20,18 +20,6 @@ import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
 import java.util.List;
 
-/**
- * Pantalla de combate por turnos estilo Pokémon clásico.
- *
- * Layout (horizontal):
- * ┌──────────────────────────────────────┬──────┐
- * │ Mensaje de turno (superior) │ │ ← caja mensaje arriba
- * ├──────────────────────────────────────┤ B1 │
- * │ │ B2 │
- * │ [Sprite Franco] [Sprite Jugador] │ B3 │ ← sprites anclados al suelo (90%)
- * │ │ B4 │ botones 15% ancho, alto completo
- * └──────────────────────────────────────┴──────┘
- */
 public class EscenaCombate implements Escena {
 
     private final Context context;
@@ -172,7 +160,7 @@ public class EscenaCombate implements Escena {
         orig.recycle();
     }
 
-    // ─── Lógica ──────────────────────────────────────────────────────────────
+    // Lógica
 
     @Override
     public void actualizar() {
@@ -247,7 +235,7 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    // ─── Renderizado ─────────────────────────────────────────────────────────
+    // Renderizado
 
     @Override
     public void renderizar(Canvas canvas) {
@@ -297,12 +285,7 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    /**
-     * Dibuja los dos sprites anclados al suelo real de la pantalla.
-     * El "suelo" se sitúa al 90% de la altura total.
-     * El enemigo se acerca al jugador (0.18 del ancho).
-     * El jugador se mantiene al 50% del ancho, dejando el 15% derecho para los botones.
-     */
+
     private void dibujarZonaSprites(Canvas canvas) {
         // Línea de suelo: 90% de la altura total de pantalla
         float ysuelo = h * 0.90f;
@@ -349,10 +332,6 @@ public class EscenaCombate implements Escena {
                 jugador.getPorcentajeHp(), true);
     }
 
-    /**
-     * Dibuja el bloque de nombre + barra de HP + texto HP.
-     * El color del nombre varía según si es el jugador (azul claro) o el enemigo (amarillo).
-     */
     private void dibujarBarraHpConNombre(Canvas canvas, float x, float y, float ancho,
                                          String nombre, int vidaActual, int vidaMax,
                                          float porcentaje, boolean esJugador) {
@@ -378,10 +357,7 @@ public class EscenaCombate implements Escena {
         canvas.drawText("HP: " + vidaActual + "/" + vidaMax, x, y + 22, paintHpNum);
     }
 
-    /**
-     * Dibuja la caja de mensaje en la esquina inferior izquierda.
-     * Solo ocupa el ancho indicado para dejar espacio a la columna de botones.
-     */
+
     private void dibujarCajaMensaje(Canvas canvas, float yMensaje, float altoMensaje, float ancho) {
         // Fondo semitransparente en la franja izquierda
         Paint fondoCaja = new Paint();
@@ -408,10 +384,7 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    /**
-     * Dibuja los botones de ataque en disposición vertical sobre la franja derecha.
-     * Los colores de fondo, borde y texto cambian según si el jugador puede actuar.
-     */
+
     private void dibujarBotonesAtaque(Canvas canvas) {
         if (botonesAtaque == null) return;
 
@@ -424,7 +397,7 @@ public class EscenaCombate implements Escena {
             RectF btn = botonesAtaque[i];
             Ataques atk = ataques.get(i);
 
-            // ── Fondo del botón ──────────────────────────────────────────
+            // Fondo del botón
             Paint fondoBtn = new Paint();
             fondoBtn.setStyle(Paint.Style.FILL);
             if (puedeSeleccionar) {
@@ -434,7 +407,7 @@ public class EscenaCombate implements Escena {
             }
             canvas.drawRoundRect(btn, 10, 10, fondoBtn);
 
-            // ── Borde del botón ──────────────────────────────────────────
+            // Borde del botón
             Paint bordeBtn = new Paint();
             bordeBtn.setStyle(Paint.Style.STROKE);
             bordeBtn.setStrokeWidth(1.5f);
@@ -445,7 +418,7 @@ public class EscenaCombate implements Escena {
             }
             canvas.drawRoundRect(btn, 10, 10, bordeBtn);
 
-            // ── Nombre del ataque ────────────────────────────────────────
+            // Nombre del ataque
             paintTextoBtn.setTextSize(24);
             if (puedeSeleccionar) {
                 paintTextoBtn.setColor(Color.WHITE);
@@ -457,7 +430,7 @@ public class EscenaCombate implements Escena {
             float ty = btn.centerY() - 12f;
             canvas.drawText(atk.getNombre(), tx, ty, paintTextoBtn);
 
-            // ── Potencia ─────────────────────────────────────────────────
+            // Potencia
             Paint paintPotencia = new Paint();
             paintPotencia.setTextSize(17);
             paintPotencia.setTypeface(Typeface.MONOSPACE);
@@ -473,11 +446,7 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    /**
-     * Calcula las zonas táctiles de los botones de ataque.
-     * Disposición: columna vertical en la franja derecha de la pantalla.
-     * Ocupa todo el alto de pantalla. Ancho fijo del 15% de la pantalla.
-     */
+
     private void calcularBotones() {
         int n = jugador.getAtaques().size();
 
@@ -485,7 +454,6 @@ public class EscenaCombate implements Escena {
         float anchoColumna = w * 0.15f;
         float xColumna = w - anchoColumna;
 
-        // Ocupa todo el alto de pantalla con pequeño margen
         float yInicio = 8f;
         float yFin = h - 8f;
         float altoTotal = yFin - yInicio;
@@ -504,7 +472,6 @@ public class EscenaCombate implements Escena {
         }
     }
 
-    // ─── Táctil ──────────────────────────────────────────────────────────────
 
     @Override
     public void onTouch(float x, float y) {

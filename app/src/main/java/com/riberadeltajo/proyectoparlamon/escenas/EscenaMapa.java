@@ -23,13 +23,6 @@ import com.riberadeltajo.proyectoparlamon.mapa.PersonajeMapa;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 import com.riberadeltajo.proyectoparlamon.sonido.SonidoManager;
 
-
-/**
- * Gestión del mundo abierto del juego (Ciudad Memópolis)
- *.
- * Controla el renderizado del mapa escalado, colisiones, movimiento del personaje,
- * comportamiento de la cámara y los triggers de las zonas de peligro (Congreso)
- */
 public class EscenaMapa implements Escena {
 
     //Booleano que controla la activación de elementos de debug dibujados en pantalla
@@ -50,7 +43,6 @@ public class EscenaMapa implements Escena {
     private float zonaEncuentroX = 0f;
     private float zonaEncuentroY = 0f;
 
-    // subsistema
     private Bitmap mapaEscalado;
     private Camara camara;
     private PersonajeMapa personaje;
@@ -62,7 +54,6 @@ public class EscenaMapa implements Escena {
     private float altoPantalla  = 0f;
     private boolean inicializado = false;
 
-    // paints
     private final Paint paintSrpite = new Paint();
     private final Paint paintMapa   = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Paint paintHudTexto;
@@ -93,12 +84,7 @@ public class EscenaMapa implements Escena {
     private final MediaPlayer mpCongreso;
     private final MediaPlayer mpBase;
 
-    /**
-     * Constructor principal. Configura los pinceles estéticos y la música de fondo.
-     * @param context
-     * @param gestorEscenas
-     * @param jugador
-     */
+
     public EscenaMapa(Context context, GestorEscenas gestorEscenas, Jugador jugador) {
         this.context = context;
         this.gestorEscenas = gestorEscenas;
@@ -243,9 +229,6 @@ public class EscenaMapa implements Escena {
     @Override
     public void onTouch(float x, float y) { }
 
-    /**
-     * Captura y procesa todos los eventos de interacción multitáctil de Android.
-     */
     @Override
     public void onTouchEvent(MotionEvent event) {
         if (!inicializado) return;
@@ -301,10 +284,7 @@ public class EscenaMapa implements Escena {
         }
     }
 
-    /**
-     * Inicialización diferida. Se ejecuta una única vez en el primer frame de renderizado.
-     * Garantiza que conocemos las dimensiones exactas físicas del Canvas antes de crear el mundo.
-     */
+
     private void inicializacionDiferida(Canvas canvas) {
         if (inicializado) return;
 
@@ -349,7 +329,7 @@ public class EscenaMapa implements Escena {
         personaje = new PersonajeMapa(context, jugador, inicioX, inicioY);
         camara.centrarEn(inicioX, inicioY);
 
-        // Inicializa controles de UI escalando los píxeles según la densidad de la pantalla (DPI)
+        // 8) Inicializa controles de UI escalando los píxeles según la densidad de la pantalla (DPI)
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         gestorControles = new GestorControles(context, anchoPantalla, altoPantalla, dm.density);
         gestorHUD = new GestorHUD(anchoPantalla, altoPantalla, dm.density, gestorControles);
@@ -387,9 +367,7 @@ public class EscenaMapa implements Escena {
         }
     }
 
-    /**
-     * Dibuja una caja informativa (tooltip) flotando justo por encima del edificio en coordenadas del mundo.
-     */
+
     private void dibujarCartel(Canvas canvas, float px, float py) {
         float w = 400f;
         float h = 80f;
@@ -408,9 +386,6 @@ public class EscenaMapa implements Escena {
         canvas.drawText("⚠ PELIGRO DICTADOR", px, by + 50, paintCartelTexto);
     }
 
-    /**
-     * Dibuja un fondo modal oscuro traslúcido con texto de advertencia crítico y un botón central.
-     */
     private void dibujarOverlayCongreso(Canvas canvas) {
         float w = anchoPantalla, h = altoPantalla;
 

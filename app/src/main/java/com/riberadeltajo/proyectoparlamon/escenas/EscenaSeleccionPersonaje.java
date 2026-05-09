@@ -12,14 +12,9 @@ import android.graphics.Typeface;
 import com.riberadeltajo.proyectoparlamon.R;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
-/**
- * Escena de Selección de Personaje.
- * Permite al jugador elegir entre tres campeones (Guerrero, Mago, Elfo)
- * representados visualmente mediante "pastillas" interactivas.
- */
+
 public class EscenaSeleccionPersonaje implements Escena{
 
-    //dependencias
     private Context context;
     private GestorEscenas gestorEscenas;
     private Paint paintTexto;
@@ -73,9 +68,6 @@ public class EscenaSeleccionPersonaje implements Escena{
 
     }
 
-    /**
-     * Actualiza la lógica de la animación de "latido".
-     */
     @Override
     public void actualizar() {
         // Incrementa el tiempo para oscilar el tamaño del texto de ayuda
@@ -85,9 +77,7 @@ public class EscenaSeleccionPersonaje implements Escena{
 
     }
 
-    /**
-     * Dibuja la interfaz de selección, calculando posiciones relativas al tamaño del Canvas.
-     */
+
     @Override
     public void renderizar(Canvas canvas) {
 
@@ -190,9 +180,6 @@ public class EscenaSeleccionPersonaje implements Escena{
         canvas.restore();
     }
 
-    /**
-     * Maneja la selección del personaje detectando en qué área ha pulsado el usuario.
-     */
     @Override
     public void onTouch(float x, float y) {
 

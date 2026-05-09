@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 
 import com.riberadeltajo.proyectoparlamon.dialogos.DialogosFin;
+import com.riberadeltajo.proyectoparlamon.inicio.AnimadorPantallaInicio;
 import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 /**
@@ -43,8 +44,12 @@ public class EscenaFinal implements Escena {
         paintTitulo.setTextSize(60);
         paintTitulo.setTypeface(Typeface.MONOSPACE);
         paintTitulo.setAntiAlias(false);
-        paintTitulo.setColor(victoria ? Color.rgb(255, 235, 59) : Color.rgb(220, 50, 50));
 
+        if (victoria) {
+            paintTitulo.setColor(Color.rgb(255, 235, 59));
+        } else {
+            paintTitulo.setColor(Color.rgb(220, 50, 50));
+        }
         paintSubtitulo = new Paint();
         paintSubtitulo.setColor(Color.WHITE);
         paintSubtitulo.setTextSize(32);
@@ -63,7 +68,7 @@ public class EscenaFinal implements Escena {
         // Fade-in
         if (alpha < 255f) alpha = Math.min(255f, alpha + 4f);
 
-        // Escala del título (crece hasta 1.0)
+        //Animación del título
         if (escalaTitulo < 1f) escalaTitulo = Math.min(1f, escalaTitulo + 0.015f);
 
         // Pulsación de la pista
@@ -79,17 +84,24 @@ public class EscenaFinal implements Escena {
         float h = canvas.getHeight();
 
         // Fondo
-        canvas.drawColor(victoria ? Color.rgb(10, 30, 10) : Color.rgb(30, 10, 10));
+        if (victoria) {
+            canvas.drawColor(Color.rgb(10, 30, 10));
+        } else {
+            canvas.drawColor(Color.rgb(30, 10, 10));
+        }
 
         int a = (int) alpha;
         paintTitulo.setAlpha(a);
         paintSubtitulo.setAlpha(a);
         paintPista.setAlpha(a);
 
-        String[] lineas = victoria ? dialogosFin.getLineasVictoria() : dialogosFin.getLineasDerrota();
-        float lineH = paintSubtitulo.getTextSize() + 16;
+        String[] lineas;
+        if (victoria) {
+            lineas = dialogosFin.getLineasVictoria();
+        } else {
+            lineas = dialogosFin.getLineasDerrota();
+        }        float lineH = paintSubtitulo.getTextSize() + 16;
 
-        // Calcular bloque total centrado verticalmente
         float altoBloque = lineH * lineas.length;
         float startY = h / 2f - altoBloque / 2f;
 
@@ -127,7 +139,6 @@ public class EscenaFinal implements Escena {
 
     @Override
     public void onTouch(float x, float y) {
-        // Volver al inicio (reiniciar el juego completo)
-        gestorEscenas.cambiarEscena(new EscenaInicio(context, gestorEscenas));
+        AnimadorPantallaInicio api = new AnimadorPantallaInicio();
     }
 }

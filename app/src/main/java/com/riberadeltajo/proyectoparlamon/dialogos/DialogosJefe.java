@@ -3,16 +3,8 @@ package com.riberadeltajo.proyectoparlamon.dialogos;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Diálogos de la cutscene previa al combate con CiberFranco.
- * Se muestran en EscenaDialogoCombate usando el EscritorTexto existente.
- */
-public class DialogosJefe {
 
-    /**
-     * Secuencia de pantallas de diálogo.
-     * Cada List<String> es una pantalla completa (igual que dialogosLore).
-     */
+public class DialogosJefe {
     public static List<List<String>> getDialogos() {
         return Arrays.asList(
 

@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // This snippet hides the system bars.
     private void hideSystemUI() {
         View v = getWindow().getDecorView();
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {

@@ -17,10 +17,7 @@ import com.riberadeltajo.proyectoparlamon.motor.GestorEscenas;
 
 import java.util.List;
 
-/**
- * Cutscene de encuentro con Ciber Franco, previa al combate.
- * Reutiliza EscritorTexto igual que EscenaInicio.
- */
+
 public class EscenaDialogoCombate implements Escena {
 
     private final Context context;
@@ -52,28 +49,24 @@ public class EscenaDialogoCombate implements Escena {
         this.dialogos = DialogosJefe.getDialogos();
         this.escritor = new EscritorTexto(45); // un poco más rápido que el intro
 
-        // Paint texto normal (blanco, monospace)
         paintTexto = new Paint();
         paintTexto.setColor(Color.WHITE);
         paintTexto.setTextSize(35);
         paintTexto.setTypeface(Typeface.MONOSPACE);
         paintTexto.setAntiAlias(false);
 
-        // Paint para líneas que empiezan por "CIBER FRANCO:" (amarillo)
         paintNombre = new Paint();
         paintNombre.setColor(Color.rgb(255, 235, 59));
         paintNombre.setTextSize(35);
         paintNombre.setTypeface(Typeface.MONOSPACE);
         paintNombre.setAntiAlias(false);
 
-        // Paint pista
         paintPista = new Paint();
         paintPista.setColor(Color.GRAY);
         paintPista.setTextSize(30);
         paintPista.setTypeface(Typeface.MONOSPACE);
         paintPista.setAntiAlias(false);
 
-        // Imagen Ciber Franco (ya existe en drawable)
         Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.ciberfrank_intro);
         int ancho = 500;
         int alto  = (int)(original.getHeight() * (ancho / (float) original.getWidth()));
@@ -83,11 +76,11 @@ public class EscenaDialogoCombate implements Escena {
         cargarPantalla(0);
     }
 
-    // ─── Jugador accesible desde EscenaCombate ───────────────────────────────
+    // Jugador accesible desde EscenaCombate
 
     public Jugador getJugador() { return jugador; }
 
-    // ─── Lógica interna ──────────────────────────────────────────────────────
+    // Lógica interna
 
     private void cargarPantalla(int index) {
         pantallaActual = index;

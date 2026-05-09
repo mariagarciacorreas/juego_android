@@ -21,13 +21,7 @@ fila 4 - ↑ - norte (mirando hacia arriba)
             fila 7 - ↘ - sur-este (mirando hacia abajo a la derecha)
  */
 
-/**
- * AnimacionPersonaje gestiona el recorte y renderizado de los fotogramas (frames)
- * de la hoja de sprites (Spritesheet) del protagonista.
- * Convierte el vector analógico de movimiento (dx, dy) en ángulos de brújula para
- * determinar la dirección visual y aplica un efecto espejo por software para cubrir
- * las 8 direcciones del espacio usando un recurso gráfico de solo 5 filas.
- */
+
 public class AnimacionPersonaje {
 
     private static final int COLUMNAS = 5;
@@ -82,13 +76,7 @@ public class AnimacionPersonaje {
         }
     }
 
-    /**
-     * Renderiza el frame recortado en las coordenadas de pantalla, aplicando la transformación espejo si es requerida.
-     * * @param canvas Lienzo de dibujo de la GPU.
-     * @param paint Pincel de renderizado.
-     * @param pantallaX Coordenada X local de pantalla filtrada por la Cámara.
-     * @param pantallaY Coordenada Y local de pantalla filtrada por la Cámara.
-     */
+
     public void dibujar(Canvas canvas, Paint paint, float pantallaX, float pantallaY) {
         // Rectángulo Origen (SrcRect): Coordenadas de los píxeles internos que queremos recortar del Spritesheet
         Rect origen = new Rect(
@@ -107,9 +95,7 @@ public class AnimacionPersonaje {
         );
 
         if (voltear) {
-            //voltear horizontalmente usando matrix
             canvas.save();
-            //wspejo: escalar -1 en X alrededor del centro del sprite
             float cx = pantallaX + anchoPJ / 2f;
             float cy = pantallaY + altoPJ  / 2f;
             canvas.scale(-1f, 1f, cx, cy);
@@ -126,14 +112,7 @@ public class AnimacionPersonaje {
         double angulo = Math.toDegrees(Math.atan2(dy, dx));
 
         //ajustar ángulo correcto
-        /*
-            Dirección real	dx/dy	atan2 original	angulo corregido
-            -------------   -----   --------------  ---------------
-            Derecha →   	1,0  	0°	            90°
-            Arriba ↑	    0,-1	270°	        0°
-            Izquierda ←  	-1,0	180°	        270°
-            Abajo ↓     	0,1	    90°	            180°
-         */
+
         angulo = (angulo + 450) % 360; // +90° y normalizar
 
 

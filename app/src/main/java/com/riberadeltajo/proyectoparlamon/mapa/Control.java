@@ -6,11 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-/**
- * Control representa un botón interactivo individual de la interfaz gráfica.
- * Es utilizado de forma modular por el GestorControles para construir el D-Pad (Cruceta),
- * gestionando de forma autónoma su propio estado físico de pulsación, textura y colisión.
- */
+
 public class Control {
 
     public boolean pulsado = false;

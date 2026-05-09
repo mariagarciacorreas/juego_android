@@ -2,10 +2,6 @@ package com.riberadeltajo.proyectoparlamon.dialogos;
 
 import java.util.List;
 
-/**
- * Clase encargada de simular efecto de máquina de escribir para mostrar textos
- * y diálogos letra por letra.
- */
 public class EscritorTexto {
 
     private List<String> lineas;
@@ -16,21 +12,11 @@ public class EscritorTexto {
     private long velocidad; //milisegundos entre letra y letra
     private boolean terminado;
 
-    /**
-     * Constructor para inicializar el escritor con una velocidad en milisegundos,
-     * que es el tiempo en que tarda en aparecer una nueva letra.
-     * @param velocidad
-     */
     public EscritorTexto(long velocidad){
         this.velocidad = velocidad;
         this.terminado = true;
     }
 
-    /**
-     * Prepara e inicia un nuevo proceso de escritura para un conjunto de líneas
-     * almacenadas en el array que se pasa por parámetro.
-     * @param lineas
-     */
     public void iniciarEscritura(List<String> lineas){
         this.lineas = lineas;
         this.lineasVisibles = new String[lineas.size()];
@@ -43,10 +29,7 @@ public class EscritorTexto {
         this.terminado = false;
     }
 
-    /**
-     * Lógica principal para avanzar en la escritura del texto.
-     * Debe ser llamado en el bucle principal de juego para una actualización constante.
-     */
+
     public void actualizarEscritura(){
         //finalizar si se ha mostrado el texto al completo
         if (terminado){
@@ -90,9 +73,7 @@ public class EscritorTexto {
         }
     }
 
-    /**
-     * completar escritura del texto completo de un solo golpe
-     */
+
     public void completarEscritura(){
         for (int i = 0; i < lineas.size(); i++) {
             lineasVisibles[i] = lineas.get(i);
